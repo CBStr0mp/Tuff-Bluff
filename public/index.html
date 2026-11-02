@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Balderdash Online</title>
+<title>Balderdash Night</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Gloock&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <style>
 html{color-scheme:light}
@@ -134,6 +134,17 @@ input::placeholder,textarea::placeholder{color:var(--ink2);opacity:.8}
 .pts{font-family:var(--f-display);font-size:1.5rem;min-width:2ch;text-align:right;font-variant-numeric:tabular-nums}
 .winner{font-family:var(--f-display);font-size:clamp(2.2rem,11vw,3.4rem);line-height:1.05;margin:0;overflow-wrap:anywhere}
 
+.reacts{display:flex;flex-wrap:wrap;gap:6px}
+.rx{min-height:40px;min-width:44px;padding:0 10px;border:1px solid var(--rule);background:transparent;color:inherit;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:1.05rem}
+.rx b{font:500 .8rem var(--f-mono)}
+.rx.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.truth .rx{border-color:var(--hifg)}
+.truth .rx.on{background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 1px var(--hifg)}
+.badge{align-self:flex-start;background:var(--hi);color:var(--hifg);font:500 .75rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:99px}
+.fake.ok{border-top:3px solid var(--hi)}
+.away{margin:0;font:400 .85rem var(--f-mono);color:var(--ink2)}
+.btn.small{min-height:44px;font-size:.9rem;padding:0 14px}
+
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:no-preference){
   #app[data-anim="1"] .screen>*{animation:rise .28s ease both}
@@ -169,61 +180,356 @@ input::placeholder,textarea::placeholder{color:var(--ink2);opacity:.8}
 "use strict";
 
 /* Real, obscure words with accurate definitions. */
+/* Add new words at the END of this list and never reorder or delete any. Each phone remembers
+   the words it has seen by their position. Write each definition as one plain sentence with no
+   semicolons and no parentheses, because those give the real answer away. */
 const WORDS=[
-{w:"petrichor",p:"noun",d:"The pleasant, earthy smell that rises from dry ground after rain."},
-{w:"lagniappe",p:"noun",d:"A small extra gift given to a customer along with a purchase; any unexpected bonus."},
-{w:"widdershins",p:"adverb",d:"In a direction opposite to the apparent path of the sun; counterclockwise."},
+{w:"petrichor",p:"noun",d:"The pleasant earthy smell that rises from dry ground when rain falls on it."},
+{w:"lagniappe",p:"noun",d:"A small extra gift given to a customer along with a purchase."},
+{w:"widdershins",p:"adverb",d:"In a direction opposite to the way the sun appears to move, which is counterclockwise."},
 {w:"susurrus",p:"noun",d:"A soft whispering or rustling sound, like leaves in a light breeze."},
-{w:"mumpsimus",p:"noun",d:"A stubbornly held error or habit that its owner refuses to give up even after being corrected."},
-{w:"snollygoster",p:"noun",d:"A shrewd, unprincipled person, especially a politician who puts self-interest first."},
-{w:"ultracrepidarian",p:"noun",d:"A person who gives opinions and advice on matters outside their knowledge."},
-{w:"borborygmus",p:"noun",d:"A rumbling or gurgling noise made by gas moving through the intestines."},
-{w:"phosphene",p:"noun",d:"A spot or ring of light seen when the eyes are closed and pressure is put on the eyeball."},
-{w:"zugzwang",p:"noun",d:"In chess, a position in which any legal move a player makes will make their situation worse."},
-{w:"tmesis",p:"noun",d:"The splitting of a word by inserting another word in the middle, as in “abso-bloomin’-lutely.”"},
-{w:"hiraeth",p:"noun",d:"A Welsh word for a deep longing for a home or a past that cannot be returned to."},
-{w:"sciolist",p:"noun",d:"A person who pretends to broad knowledge but knows only a little about each subject."},
-{w:"gazump",p:"verb",d:"To accept a higher offer on a property after already agreeing to sell it to someone else."},
-{w:"fardel",p:"noun",d:"A bundle or pack; figuratively, a burden. (Archaic)"},
-{w:"brumous",p:"adjective",d:"Foggy or wintry; full of mist."},
+{w:"mumpsimus",p:"noun",d:"A stubbornly held mistake that a person refuses to give up even after being corrected."},
+{w:"snollygoster",p:"noun",d:"A shrewd person who puts self-interest ahead of principle, especially in politics."},
+{w:"ultracrepidarian",p:"noun",d:"A person who gives opinions on matters they know nothing about."},
+{w:"borborygmus",p:"noun",d:"A rumbling or gurgling noise made by gas moving through the stomach and intestines."},
+{w:"phosphene",p:"noun",d:"A spot or ring of light you see when your eyes are closed and you press on them."},
+{w:"zugzwang",p:"noun",d:"A position in chess where every move a player can make makes their situation worse."},
+{w:"tmesis",p:"noun",d:"The splitting of a word by putting another word in the middle, as in abso-bloomin-lutely."},
+{w:"hiraeth",p:"noun",d:"A Welsh word for a deep longing for a home or a past that you cannot return to."},
+{w:"sciolist",p:"noun",d:"A person who pretends to know a lot but really knows only a little about each subject."},
+{w:"gazump",p:"verb",d:"To accept a higher offer on a house after already agreeing to sell it to someone else."},
+{w:"fardel",p:"noun",d:"An old word for a bundle or a heavy burden."},
+{w:"brumous",p:"adjective",d:"Foggy, misty, or wintry."},
 {w:"nidor",p:"noun",d:"A strong smell of cooking, especially of meat or fat being burned."},
-{w:"pilcrow",p:"noun",d:"The paragraph mark (¶), used to show where a new paragraph begins."},
-{w:"interrobang",p:"noun",d:"A punctuation mark (‽) that combines a question mark and an exclamation point."},
-{w:"aglet",p:"noun",d:"The small plastic or metal sheath at the end of a shoelace."},
-{w:"vomitory",p:"noun",d:"A passage or opening in an amphitheater or stadium through which crowds enter and leave the seating."},
-{w:"ort",p:"noun",d:"A scrap or leftover bit of food from a meal. (Usually plural.)"},
-{w:"eleemosynary",p:"adjective",d:"Relating to or dependent on charity; given freely as alms."},
-{w:"pandiculation",p:"noun",d:"The instinctive stretching and yawning of the body, as upon waking."},
+{w:"pilcrow",p:"noun",d:"The symbol used to mark the start of a new paragraph."},
+{w:"interrobang",p:"noun",d:"A punctuation mark that combines a question mark and an exclamation point."},
+{w:"aglet",p:"noun",d:"The small plastic or metal tip at the end of a shoelace."},
+{w:"vomitory",p:"noun",d:"A passage in a stadium or amphitheater that lets crowds enter and leave the seating area."},
+{w:"ort",p:"noun",d:"A leftover scrap of food from a meal."},
+{w:"eleemosynary",p:"adjective",d:"Relating to charity, or given freely as alms."},
+{w:"pandiculation",p:"noun",d:"The stretching and yawning a person does on waking up."},
 {w:"apricity",p:"noun",d:"The warmth of the sun on a cold winter day."},
-{w:"jentacular",p:"adjective",d:"Of or relating to breakfast."},
+{w:"jentacular",p:"adjective",d:"Relating to breakfast."},
 {w:"gongoozler",p:"noun",d:"A person who enjoys idly watching boats and activity on a canal."},
-{w:"mondegreen",p:"noun",d:"A misheard word or phrase, especially in a song lyric, that gives it a new meaning."},
-{w:"skookum",p:"adjective",d:"Strong, powerful, or excellent. (From Chinook Jargon.)"},
+{w:"mondegreen",p:"noun",d:"A misheard word or phrase, especially in a song lyric, that ends up with a new meaning."},
+{w:"skookum",p:"adjective",d:"Strong, powerful, or excellent."},
 {w:"peripeteia",p:"noun",d:"A sudden reversal of fortune or turn of events, especially in a story or drama."},
-{w:"cacoethes",p:"noun",d:"An irresistible urge to do something unwise; a compulsive mania."},
-{w:"phatic",p:"adjective",d:"Describing speech that builds social connection rather than sharing information, like “How’s it going?”"},
-{w:"antimacassar",p:"noun",d:"A small cloth draped over the back of a chair or sofa to protect it from hair oil and stains."},
+{w:"cacoethes",p:"noun",d:"An irresistible urge to do something unwise."},
+{w:"phatic",p:"adjective",d:"Describing speech that builds social connection instead of sharing information, like asking how someone is doing."},
+{w:"antimacassar",p:"noun",d:"A small cloth draped over the back of a chair to protect it from hair oil and stains."},
 {w:"chiliad",p:"noun",d:"A group or period of one thousand, especially one thousand years."},
-{w:"welkin",p:"noun",d:"The sky or the vault of heaven. (Archaic)"},
-{w:"crepuscular",p:"adjective",d:"Of or relating to twilight; describing animals that are most active at dawn and dusk."},
-{w:"pettifogger",p:"noun",d:"A petty, quibbling lawyer; someone who raises trivial objections or uses underhanded tricks."},
-{w:"quiddity",p:"noun",d:"The essential nature of a thing; also, a petty quibble."},
+{w:"welkin",p:"noun",d:"An old word for the sky or the vault of heaven."},
+{w:"crepuscular",p:"adjective",d:"Relating to twilight, or describing animals that are most active at dawn and dusk."},
+{w:"pettifogger",p:"noun",d:"A petty, quibbling lawyer who raises trivial objections or uses underhanded tricks."},
+{w:"quiddity",p:"noun",d:"The essential nature of a thing, or a petty quibble."},
 {w:"floccinaucinihilipilification",p:"noun",d:"The act of judging something to be worthless."},
 {w:"bumfuzzle",p:"verb",d:"To confuse, perplex, or fluster."},
-{w:"kakistocracy",p:"noun",d:"Government by the worst, least qualified, or most unprincipled citizens."},
+{w:"kakistocracy",p:"noun",d:"Government by the worst and least qualified people."},
 {w:"logomachy",p:"noun",d:"An argument about words, or a dispute carried on in words only."},
-{w:"umbrageous",p:"adjective",d:"Giving shade; shady. (Also, quick to take offense.)"},
+{w:"umbrageous",p:"adjective",d:"Giving shade, or shady."},
 {w:"limerence",p:"noun",d:"The state of intense, often obsessive infatuation with another person."},
-{w:"yarborough",p:"noun",d:"In bridge or whist, a hand containing no card higher than a nine."},
-{w:"ratoon",p:"noun",d:"A new shoot that grows from the base of a crop plant, such as sugarcane, after it has been cut."},
-{w:"chthonic",p:"adjective",d:"Relating to the underworld; dwelling beneath the earth."},
+{w:"yarborough",p:"noun",d:"In bridge or whist, a hand with no card higher than a nine."},
+{w:"ratoon",p:"noun",d:"A new shoot that grows from the base of a crop plant like sugarcane after it has been cut."},
+{w:"chthonic",p:"adjective",d:"Relating to the underworld, or living beneath the earth."},
 {w:"quincunx",p:"noun",d:"An arrangement of five objects with four at the corners of a square and one in the middle, like the five on a die."},
 {w:"pareidolia",p:"noun",d:"The tendency to see meaningful patterns, such as faces, in random shapes like clouds."},
-{w:"kenspeckle",p:"adjective",d:"Easily recognized; conspicuous. (Scots)"}
+{w:"kenspeckle",p:"adjective",d:"Easily recognized, or conspicuous."},
+{w:"agelast",p:"noun",d:"A person who never laughs."},
+{w:"akrasia",p:"noun",d:"The state of acting against your own better judgment."},
+{w:"alexithymia",p:"noun",d:"Difficulty in recognizing and describing your own emotions."},
+{w:"amanuensis",p:"noun",d:"A person employed to write down what another person dictates or to copy manuscripts."},
+{w:"anosmia",p:"noun",d:"The loss of the sense of smell."},
+{w:"apophenia",p:"noun",d:"The tendency to see connections between things that are not really related."},
+{w:"argot",p:"noun",d:"The special slang of a particular group."},
+{w:"bathos",p:"noun",d:"A sudden drop from something grand to something silly or ordinary."},
+{w:"bildungsroman",p:"noun",d:"A novel about the growing up and education of its main character."},
+{w:"bricolage",p:"noun",d:"Something made from whatever materials happen to be on hand."},
+{w:"bruxism",p:"noun",d:"The habit of grinding or clenching the teeth, often during sleep."},
+{w:"cenotaph",p:"noun",d:"A monument to someone who is buried somewhere else."},
+{w:"chiaroscuro",p:"noun",d:"The use of strong contrast between light and dark in a picture."},
+{w:"coulrophobia",p:"noun",d:"An extreme fear of clowns."},
+{w:"cynosure",p:"noun",d:"A person or thing that is the center of attention."},
+{w:"dendrochronology",p:"noun",d:"The dating of past events by studying the rings in trees."},
+{w:"dysphemism",p:"noun",d:"A harsh or offensive word used in place of a milder one."},
+{w:"ecdysis",p:"noun",d:"The shedding of an outer layer of skin, as a snake does."},
+{w:"eisegesis",p:"noun",d:"Reading your own ideas into a text instead of drawing out what it actually says."},
+{w:"epistolary",p:"adjective",d:"Relating to letters, or told through letters."},
+{w:"eructation",p:"noun",d:"The act of belching."},
+{w:"esculent",p:"adjective",d:"Fit to be eaten."},
+{w:"aestivate",p:"verb",d:"To spend the summer in a sleeping or inactive state."},
+{w:"exiguous",p:"adjective",d:"Very small in amount."},
+{w:"factotum",p:"noun",d:"A person who does all kinds of jobs for an employer."},
+{w:"flaneur",p:"noun",d:"A person who strolls around a city just to watch and enjoy it."},
+{w:"frisson",p:"noun",d:"A sudden shiver of excitement or fear."},
+{w:"fustian",p:"noun",d:"Pompous, inflated speech or writing."},
+{w:"gallimaufry",p:"noun",d:"A confused jumble of things."},
+{w:"gestalt",p:"noun",d:"An organized whole that is more than the sum of its parts."},
+{w:"gossamer",p:"noun",d:"A very fine, light cobweb or fabric."},
+{w:"grimalkin",p:"noun",d:"An old word for a cat, especially an old female cat."},
+{w:"hebdomadal",p:"adjective",d:"Happening every week."},
+{w:"hirsute",p:"adjective",d:"Hairy."},
+{w:"histrionic",p:"adjective",d:"Overly dramatic or theatrical."},
+{w:"horripilation",p:"noun",d:"The bristling of the hair on the skin, as in goose bumps."},
+{w:"ichor",p:"noun",d:"The fluid said to flow in the veins of the gods in Greek myth."},
+{w:"inchoate",p:"adjective",d:"Just begun and not yet fully formed."},
+{w:"juggernaut",p:"noun",d:"A huge, unstoppable force."},
+{w:"kerfuffle",p:"noun",d:"A fuss caused by conflicting views."},
+{w:"lacuna",p:"noun",d:"A gap or missing part, as in a manuscript."},
+{w:"lambent",p:"adjective",d:"Glowing or flickering softly."},
+{w:"legerdemain",p:"noun",d:"Skillful sleight of hand, or trickery."},
+{w:"lethologica",p:"noun",d:"The inability to remember a word you want to say."},
+{w:"liminal",p:"adjective",d:"Relating to a threshold or an in-between state."},
+{w:"logorrhea",p:"noun",d:"Excessive and uncontrollable talkativeness."},
+{w:"lucubrate",p:"verb",d:"To work or study hard, especially late at night."},
+{w:"malapropism",p:"noun",d:"The mistaken use of a word that sounds like the right one, with a funny result."},
+{w:"maunder",p:"verb",d:"To talk or move in a rambling, aimless way."},
+{w:"meretricious",p:"adjective",d:"Attractive in a flashy way but of little real value."},
+{w:"metempsychosis",p:"noun",d:"The passing of a soul into a new body after death."},
+{w:"miasma",p:"noun",d:"A cloud of foul-smelling or unhealthy air."},
+{w:"mnemonic",p:"noun",d:"A trick or rhyme that helps you remember something."},
+{w:"mugwump",p:"noun",d:"A person who stays neutral and keeps apart, especially in politics."},
+{w:"natatorium",p:"noun",d:"A building that contains a swimming pool."},
+{w:"nepenthe",p:"noun",d:"A drug or drink that makes you forget sorrow."},
+{w:"nescient",p:"adjective",d:"Lacking knowledge, or ignorant."},
+{w:"nictitate",p:"verb",d:"To blink or wink."},
+{w:"noctivagant",p:"adjective",d:"Wandering at night."},
+{w:"nugatory",p:"adjective",d:"Of no value or importance."},
+{w:"numinous",p:"adjective",d:"Having a strong spiritual or mysterious quality."},
+{w:"obloquy",p:"noun",d:"Strong public criticism or abuse."},
+{w:"obsequious",p:"adjective",d:"Too eager to please or obey."},
+{w:"omphaloskepsis",p:"noun",d:"The contemplation of your own navel, or being absorbed in yourself."},
+{w:"opprobrium",p:"noun",d:"Harsh public criticism or disgrace."},
+{w:"orrery",p:"noun",d:"A mechanical model of the solar system."},
+{w:"ossify",p:"verb",d:"To turn into bone, or to become rigid and set in your ways."},
+{w:"palimpsest",p:"noun",d:"A page that has been scraped clean and written on again, with traces of the old writing still showing."},
+{w:"panegyric",p:"noun",d:"A speech or piece of writing that praises someone highly."},
+{w:"paraprosdokian",p:"noun",d:"A surprising twist at the end of a sentence that makes you reread the beginning."},
+{w:"parsimonious",p:"adjective",d:"Extremely unwilling to spend money."},
+{w:"peccadillo",p:"noun",d:"A small, minor fault."},
+{w:"pedagogue",p:"noun",d:"A teacher, especially a strict or fussy one."},
+{w:"penumbra",p:"noun",d:"The partly shaded area around the dark center of a shadow."},
+{w:"perfidy",p:"noun",d:"Betrayal of trust."},
+{w:"perspicuous",p:"adjective",d:"Clearly expressed and easy to understand."},
+{w:"phlegmatic",p:"adjective",d:"Calm and not easily excited."},
+{w:"pinguid",p:"adjective",d:"Fat or fatty."},
+{w:"plangent",p:"adjective",d:"Loud, ringing, and mournful sounding."},
+{w:"plethora",p:"noun",d:"A large overabundance of something."},
+{w:"poltroon",p:"noun",d:"A complete coward."},
+{w:"portmanteau",p:"noun",d:"A word formed by blending two other words, like brunch."},
+{w:"postprandial",p:"adjective",d:"Happening after a meal."},
+{w:"prevaricate",p:"verb",d:"To avoid giving a straight answer."},
+{w:"propinquity",p:"noun",d:"Nearness in place or time."},
+{w:"pusillanimous",p:"adjective",d:"Showing a lack of courage."},
+{w:"quagmire",p:"noun",d:"A soft, wet area of land that gives way underfoot."},
+{w:"quixotic",p:"adjective",d:"Idealistic in a way that is unrealistic or impractical."},
+{w:"rapscallion",p:"noun",d:"A mischievous rascal."},
+{w:"recondite",p:"adjective",d:"Little known, or hard to understand."},
+{w:"recrudescence",p:"noun",d:"A fresh outbreak of something after a quiet period."},
+{w:"redolent",p:"adjective",d:"Strongly reminding you of something, or having a strong smell."},
+{w:"rodomontade",p:"noun",d:"Boastful or bragging talk."},
+{w:"rubicund",p:"adjective",d:"Having a healthy red color, especially in the face."},
+{w:"sanguine",p:"adjective",d:"Hopeful and optimistic."},
+{w:"saturnine",p:"adjective",d:"Gloomy and slow to smile."},
+{w:"schadenfreude",p:"noun",d:"Pleasure taken in someone else's misfortune."},
+{w:"sempiternal",p:"adjective",d:"Lasting forever."},
+{w:"sinecure",p:"noun",d:"A job that pays well but requires little or no work."},
+{w:"solipsism",p:"noun",d:"The belief that only your own mind is certain to exist."},
+{w:"somnambulist",p:"noun",d:"A person who walks in their sleep."},
+{w:"sophomoric",p:"adjective",d:"Immature and overconfident."},
+{w:"spoonerism",p:"noun",d:"A slip of the tongue in which the first sounds of two words are swapped."},
+{w:"stentorian",p:"adjective",d:"Extremely loud and powerful in sound."},
+{w:"stochastic",p:"adjective",d:"Randomly determined."},
+{w:"supercilious",p:"adjective",d:"Behaving as though you are better than other people."},
+{w:"syzygy",p:"noun",d:"A straight-line arrangement of three heavenly bodies, such as the sun, the moon, and Earth."},
+{w:"tendentious",p:"adjective",d:"Promoting a particular cause in a biased way."},
+{w:"tenebrous",p:"adjective",d:"Dark and shadowy."},
+{w:"terpsichorean",p:"adjective",d:"Relating to dancing."},
+{w:"tintinnabulation",p:"noun",d:"The ringing or jingling sound of bells."},
+{w:"tortuous",p:"adjective",d:"Full of twists and turns."},
+{w:"tremulous",p:"adjective",d:"Shaking or quivering slightly."},
+{w:"trepidation",p:"noun",d:"A feeling of fear about something that may happen."},
+{w:"triskaidekaphobia",p:"noun",d:"The fear of the number thirteen."},
+{w:"truculent",p:"adjective",d:"Eager to argue or fight."},
+{w:"tyro",p:"noun",d:"A beginner at something."},
+{w:"ukase",p:"noun",d:"An official order issued by an absolute ruler."},
+{w:"ululate",p:"verb",d:"To howl or wail loudly, as a sign of grief or joy."},
+{w:"umbra",p:"noun",d:"The darkest part of a shadow."},
+{w:"unctuous",p:"adjective",d:"Smooth and oily in manner in an insincere way."},
+{w:"vainglory",p:"noun",d:"Excessive pride in your own achievements."},
+{w:"verdant",p:"adjective",d:"Green with grass or plants."},
+{w:"verisimilitude",p:"noun",d:"The appearance of being true or real."},
+{w:"vicissitude",p:"noun",d:"A change of circumstances, usually an unwelcome one."},
+{w:"vituperate",p:"verb",d:"To blame or insult someone in bitter, abusive language."},
+{w:"vociferous",p:"adjective",d:"Loud and forceful in expressing opinions."},
+{w:"voluble",p:"adjective",d:"Talking easily and at length."},
+{w:"whelm",p:"verb",d:"To engulf or submerge."},
+{w:"winsome",p:"adjective",d:"Charming in a sweet, innocent way."},
+{w:"wunderkind",p:"noun",d:"A person who achieves great success at a young age."},
+{w:"xenial",p:"adjective",d:"Relating to hospitality toward guests or strangers."},
+{w:"xerophyte",p:"noun",d:"A plant adapted to living in very dry places."},
+{w:"yclept",p:"adjective",d:"An old word meaning named or called."},
+{w:"zephyr",p:"noun",d:"A soft, gentle breeze."},
+{w:"zeitgeist",p:"noun",d:"The mood or spirit of a particular time in history."},
+{w:"sphygmomanometer",p:"noun",d:"A device for measuring blood pressure."},
+{w:"tittle",p:"noun",d:"A tiny mark, such as the dot over a lowercase i."},
+{w:"ferrule",p:"noun",d:"A metal ring or cap on the end of a handle, stick, or tool."},
+{w:"lemniscate",p:"noun",d:"The sideways figure eight that stands for infinity."},
+{w:"obelus",p:"noun",d:"The division sign, a line with a dot above and a dot below."},
+{w:"octothorpe",p:"noun",d:"The pound or hash symbol on a phone keypad."},
+{w:"geosmin",p:"noun",d:"The chemical that gives soil its earthy smell."},
+{w:"sternutation",p:"noun",d:"The act of sneezing."},
+{w:"singultus",p:"noun",d:"The medical word for hiccups."},
+{w:"crapulous",p:"adjective",d:"Feeling sick from eating or drinking too much."},
+{w:"hypnagogic",p:"adjective",d:"Relating to the state just before falling asleep."},
+{w:"hypnopompic",p:"adjective",d:"Relating to the state just before waking up."},
+{w:"tsundoku",p:"noun",d:"A Japanese word for buying books and letting them pile up unread."},
+{w:"kintsugi",p:"noun",d:"The Japanese art of repairing broken pottery with gold."},
+{w:"komorebi",p:"noun",d:"A Japanese word for sunlight filtering through trees."},
+{w:"hygge",p:"noun",d:"A Danish word for a cozy, comfortable feeling."},
+{w:"fika",p:"noun",d:"A Swedish coffee break with something sweet to eat."},
+{w:"sisu",p:"noun",d:"A Finnish word for stubborn determination and grit."},
+{w:"saudade",p:"noun",d:"A Portuguese word for a deep longing for something that is absent."},
+{w:"wabi-sabi",p:"noun",d:"The Japanese idea of finding beauty in things that are imperfect and impermanent."},
+{w:"sobremesa",p:"noun",d:"A Spanish word for the time spent talking at the table after a meal."},
+{w:"tartle",p:"verb",d:"To hesitate when introducing someone because you forget their name."},
+{w:"hullabaloo",p:"noun",d:"A loud, confused noise or uproar."},
+{w:"brouhaha",p:"noun",d:"A noisy, excited fuss."},
+{w:"discombobulate",p:"verb",d:"To confuse or upset someone."},
+{w:"skedaddle",p:"verb",d:"To run away quickly."},
+{w:"bamboozle",p:"verb",d:"To trick or confuse someone."},
+{w:"hornswoggle",p:"verb",d:"To cheat or trick someone."},
+{w:"lollygag",p:"verb",d:"To waste time by dawdling."},
+{w:"codswallop",p:"noun",d:"A British word for nonsense."},
+{w:"cattywampus",p:"adjective",d:"Positioned diagonally or crooked."},
+{w:"collywobbles",p:"noun",d:"A stomach ache or a feeling of nervousness."},
+{w:"persnickety",p:"adjective",d:"Fussy about small details."},
+{w:"rigmarole",p:"noun",d:"A long, complicated, pointless procedure."},
+{w:"flummox",p:"verb",d:"To confuse completely."},
+{w:"whippersnapper",p:"noun",d:"A young person who is cheeky or overconfident."},
+{w:"poppycock",p:"noun",d:"Nonsense."},
+{w:"galumph",p:"verb",d:"To move in a clumsy, heavy, bounding way."},
+{w:"ballyhoo",p:"noun",d:"Loud, exaggerated publicity."},
+{w:"gubbins",p:"noun",d:"A British word for odds and ends."},
+{w:"doohickey",p:"noun",d:"A gadget whose name you cannot remember."},
+{w:"ragamuffin",p:"noun",d:"A person in ragged, dirty clothes, especially a child."},
+{w:"curmudgeon",p:"noun",d:"A bad-tempered, stubborn person."},
+{w:"scalawag",p:"noun",d:"A rascal or scamp."},
+{w:"hobnob",p:"verb",d:"To mix socially, especially with important people."},
+{w:"tarradiddle",p:"noun",d:"A petty lie or fib."},
+{w:"fribble",p:"verb",d:"To waste time on trifles."},
+{w:"fatuous",p:"adjective",d:"Silly in a pointless way."},
+{w:"inveigle",p:"verb",d:"To persuade someone by flattery or trickery."},
+{w:"lickspittle",p:"noun",d:"A person who flatters someone powerful in a groveling way."},
+{w:"cantankerous",p:"adjective",d:"Bad-tempered and argumentative."},
+{w:"flibbertigibbet",p:"noun",d:"A flighty, chattering person."},
+{w:"gadabout",p:"noun",d:"A person who goes from place to place looking for fun."},
+{w:"guttersnipe",p:"noun",d:"A child who lives and plays in the streets."},
+{w:"ambergris",p:"noun",d:"A waxy substance made in the intestines of sperm whales and used in perfume."},
+{w:"murmuration",p:"noun",d:"A large flock of starlings flying together in swirling patterns."},
+{w:"axolotl",p:"noun",d:"A Mexican salamander that keeps its gills and lives in water its whole life."},
+{w:"quokka",p:"noun",d:"A small Australian marsupial known for its smiling face."},
+{w:"kakapo",p:"noun",d:"A flightless parrot from New Zealand that is active at night."},
+{w:"aye-aye",p:"noun",d:"A lemur from Madagascar with a long thin middle finger for tapping on wood."},
+{w:"tardigrade",p:"noun",d:"A tiny water animal that can survive extreme conditions."},
+{w:"binturong",p:"noun",d:"A shaggy tree-dwelling animal of Southeast Asia that smells like buttered popcorn."},
+{w:"okapi",p:"noun",d:"A forest animal of central Africa related to the giraffe, with striped legs."},
+{w:"pika",p:"noun",d:"A small mountain-dwelling relative of the rabbit that squeaks."},
+{w:"dugong",p:"noun",d:"A large sea mammal related to the manatee."},
+{w:"gerenuk",p:"noun",d:"A long-necked antelope that stands on its hind legs to eat."},
+{w:"saiga",p:"noun",d:"An antelope of the Asian steppe with a large, bulbous nose."},
+{w:"numbat",p:"noun",d:"A small Australian marsupial that eats termites."},
+{w:"echidna",p:"noun",d:"A spiny, egg-laying mammal of Australia and New Guinea."},
+{w:"fossa",p:"noun",d:"A catlike predator found only on the island of Madagascar."},
+{w:"lammergeier",p:"noun",d:"A large vulture that drops bones from great heights to crack them open."},
+{w:"cassowary",p:"noun",d:"A large flightless bird of Australia and New Guinea with a bony crest on its head."},
+{w:"gloaming",p:"noun",d:"The time of evening just after sunset."},
+{w:"halcyon",p:"adjective",d:"Calm and peaceful, often used of a happy past."},
+{w:"sastrugi",p:"noun",d:"Sharp ridges of hard snow formed by the wind."},
+{w:"bergschrund",p:"noun",d:"A crevasse where a glacier pulls away from the rock at the top of a mountain."},
+{w:"scree",p:"noun",d:"A slope of loose small stones on a mountainside."},
+{w:"tarn",p:"noun",d:"A small mountain lake."},
+{w:"gibbous",p:"adjective",d:"Describing a moon that is more than half full but not yet full."},
+{w:"perihelion",p:"noun",d:"The point in a planet's orbit where it is closest to the sun."},
+{w:"fumarole",p:"noun",d:"An opening in the ground near a volcano that gives off steam and gas."},
+{w:"monadnock",p:"noun",d:"An isolated rocky hill that rises above a flat plain."},
+{w:"williwaw",p:"noun",d:"A sudden violent gust of wind, especially near a coast."},
+{w:"haboob",p:"noun",d:"A violent dust storm."},
+{w:"sabrage",p:"noun",d:"The act of opening a bottle of champagne with a sword."},
+{w:"gimlet",p:"noun",d:"A small hand tool with a screw tip for boring holes."},
+{w:"bodkin",p:"noun",d:"A blunt needle for threading ribbon or cord through a hem."},
+{w:"tuffet",p:"noun",d:"A low seat or footstool."},
+{w:"epergne",p:"noun",d:"A large decorative centerpiece for a dining table, with branches for holding fruit or flowers."},
+{w:"chatelaine",p:"noun",d:"A chain worn at the waist to hold keys and small tools."},
+{w:"cloche",p:"noun",d:"A bell-shaped cover for plants or food."},
+{w:"pannier",p:"noun",d:"A basket or bag hung on the side of a bicycle or pack animal."},
+{w:"sporran",p:"noun",d:"A pouch worn at the front of a Scottish kilt."},
+{w:"mukluk",p:"noun",d:"A soft Arctic boot made of sealskin or reindeer skin."},
+{w:"tippet",p:"noun",d:"A long scarf or short cape of fur or cloth."},
+{w:"wimple",p:"noun",d:"A cloth head covering that wraps around the neck and chin, worn by medieval women and some nuns."},
+{w:"jerkin",p:"noun",d:"A short sleeveless jacket."},
+{w:"doublet",p:"noun",d:"A short, close-fitting jacket worn by men from the 1400s to the 1600s."},
+{w:"cummerbund",p:"noun",d:"A wide sash worn around the waist with a tuxedo."},
+{w:"snood",p:"noun",d:"A net or bag worn over the back of the hair."},
+{w:"espadrille",p:"noun",d:"A shoe with a canvas top and a sole made of braided rope."},
+{w:"pince-nez",p:"noun",d:"Eyeglasses held on the nose by a spring instead of by arms over the ears."},
+{w:"lorgnette",p:"noun",d:"A pair of eyeglasses held up to the eyes on a long handle."},
+{w:"bloviate",p:"verb",d:"To talk at length in an inflated way."},
+{w:"ephemera",p:"noun",d:"Things that are meant to be used for a short time only, like tickets and flyers."},
+{w:"hoary",p:"adjective",d:"Gray or white with age."},
+{w:"imbroglio",p:"noun",d:"A confusing and embarrassing situation."},
+{w:"jejune",p:"adjective",d:"Naive and simplistic, or dull."},
+{w:"kismet",p:"noun",d:"Fate or destiny."},
+{w:"laconic",p:"adjective",d:"Using very few words."},
+{w:"mawkish",p:"adjective",d:"Sentimental in a sickly, overdone way."},
+{w:"obstreperous",p:"adjective",d:"Noisy and difficult to control."},
+{w:"pellucid",p:"adjective",d:"Transparently clear."},
+{w:"quotidian",p:"adjective",d:"Happening every day, or ordinary."},
+{w:"risible",p:"adjective",d:"Causing laughter, especially because it is ridiculous."},
+{w:"sibilant",p:"adjective",d:"Making a hissing sound."},
+{w:"turgid",p:"adjective",d:"Swollen and puffed up."},
+{w:"uxorious",p:"adjective",d:"Excessively devoted to your wife."},
+{w:"wheedle",p:"verb",d:"To persuade someone with flattery or charm."},
+{w:"xenophile",p:"noun",d:"A person who loves foreign things, cultures, or people."},
+{w:"yokel",p:"noun",d:"An unsophisticated person from the countryside, often used as an insult."},
+{w:"abecedarian",p:"adjective",d:"Arranged in alphabetical order."},
+{w:"bibliopole",p:"noun",d:"A person who buys and sells books, especially rare ones."},
+{w:"fossick",p:"verb",d:"To search for gold or gems, especially in old mines."},
+{w:"idiolect",p:"noun",d:"The speech habits of one individual person."},
+{w:"jocund",p:"adjective",d:"Cheerful and lighthearted."},
+{w:"kudzu",p:"noun",d:"A fast-growing vine that has taken over much of the southern United States."},
+{w:"lollapalooza",p:"noun",d:"Something that is an outstanding example of its kind."},
+{w:"nincompoop",p:"noun",d:"A silly or foolish person."},
+{w:"oleaginous",p:"adjective",d:"Oily, or too smooth and flattering."},
+{w:"pernicious",p:"adjective",d:"Having a harmful effect, often in a gradual way."},
+{w:"querulous",p:"adjective",d:"Complaining in a whining way."},
+{w:"raconteur",p:"noun",d:"A person who tells stories well."},
+{w:"sagacious",p:"adjective",d:"Wise and showing good judgment."},
+{w:"tatterdemalion",p:"noun",d:"A person in ragged clothing."},
+{w:"vernal",p:"adjective",d:"Relating to spring."},
+{w:"weltschmerz",p:"noun",d:"A feeling of sadness about the troubles of the world."},
+{w:"yammer",p:"verb",d:"To complain loudly or talk at length."},
+{w:"zax",p:"noun",d:"A tool for cutting and punching holes in roofing slates."},
+{w:"ague",p:"noun",d:"A fever with chills and shivering."},
+{w:"bumbershoot",p:"noun",d:"A slang word for an umbrella."},
+{w:"cabotage",p:"noun",d:"Trade or transport within one country, such as shipping between its own ports."},
+{w:"dirigible",p:"noun",d:"A balloon aircraft that can be steered."},
+{w:"firkin",p:"noun",d:"A small barrel."},
+{w:"gamboge",p:"noun",d:"A yellow-orange pigment made from tree resin."},
+{w:"hogshead",p:"noun",d:"A very large barrel."},
+{w:"jodhpurs",p:"noun",d:"Riding pants that are loose over the hips and tight from the knee to the ankle."},
+{w:"lanyard",p:"noun",d:"A cord worn around the neck to hold a key or badge."},
+{w:"nacelle",p:"noun",d:"The streamlined housing that holds an aircraft engine."},
+{w:"plimsoll",p:"noun",d:"A British word for a light canvas sports shoe."},
+{w:"quoin",p:"noun",d:"A cornerstone of a building."},
+{w:"taffrail",p:"noun",d:"The rail around the back of a ship."},
+{w:"ullage",p:"noun",d:"The amount of empty space left in a container of liquid, such as a barrel or bottle."},
+{w:"vellum",p:"noun",d:"Fine parchment made from calf skin."}
 ];
 
 const LETTERS="ABCDEFGHIJKLMNOP";
 const MAX_PLAYERS=15;
+const EMOJI=["\uD83D\uDE02","\uD83D\uDE2E","\uD83D\uDC4F","\uD83D\uDC80","\uD83E\uDD14","\u2764\uFE0F"];
+const AWAY_MIN=5;
 const PHASES=["lobby","write","vote","reveal","done"];
 const ID_RE=/^[A-Za-z0-9_.:@+-]{1,64}$/;
 const app=document.getElementById("app");
@@ -246,13 +552,14 @@ function genCode(){const A="ABCDEFGHJKMNPQRSTUVWXYZ";let s="";for(let i=0;i<4;i+
 /*
   How the game talks: every phone is a peer in the page's live room. Each player
   publishes their own presence: {rc: room code, id, name, jt: join time,
-  a: my answer, v: my vote}. The host also publishes g, the game state
+  a: my answer, v: my vote, x: my emoji reactions, w: seconds I spent away while writing,
+  sn: the words I have seen}. The host also publishes g, the game state
   (phase, round, word deck, scores). Nothing is stored; the game lasts as long
   as people keep the page open.
 */
 let room=null,user=null,uid=null,myId="",standalone=false;
 let code=null,S=null,mine={},offPeers=null;
-let lastKey="",lastHtml="",draft="",draftKey="",editing=false,advKey="",armed="",armT=null,lostAt=0,graceT=null;
+let lastKey="",lastHtml="",lastDef="",pasteT=null,awayAt=0,awayHideKey="",draft="",draftKey="",editing=false,advKey="",armed="",armT=null,lostAt=0,graceT=null;
 
 function why(e){
   const c=e&&e.code;
@@ -262,6 +569,27 @@ function why(e){
 }
 function setErr(m){const el=$("#err");if(el)el.textContent=m||"";}
 function gameErr(m){const el=$("#gerr");if(el)el.textContent=m||"";}
+
+/* ---------- Words this phone has already seen ---------- */
+let SEEN=[];
+function decodeSeen(s){
+  const out=[];
+  if(typeof s!=="string"||s.length>800||!/^[A-Za-z0-9+/=]*$/.test(s))return out;
+  try{const b=atob(s);for(let i=0;i<b.length;i++){const c=b.charCodeAt(i);for(let j=0;j<8;j++)if(c&(1<<j))out[i*8+j]=true;}}catch(e){}
+  return out;
+}
+function encodeSeen(){
+  const n=Math.ceil(WORDS.length/8);let s="";
+  for(let i=0;i<n;i++){let c=0;for(let j=0;j<8;j++)if(SEEN[i*8+j])c|=1<<j;s+=String.fromCharCode(c);}
+  return btoa(s);
+}
+function loadSeen(){SEEN=decodeSeen(ls("bn.seen"));}
+function markSeen(idx){
+  if(!(idx>=0)||idx>=WORDS.length||SEEN[idx])return;
+  SEEN[idx]=true;
+  const e=encodeSeen();ls("bn.seen",e);
+  if(room&&code&&S)setTimeout(()=>{setMine({sn:e}).catch(()=>{});},0);
+}
 
 /* ---------- Home ---------- */
 function renderHome(){
@@ -319,7 +647,9 @@ function cleanMap(m){
 function cleanG(g){
   if(!g||typeof g!=="object"||PHASES.indexOf(g.phase)<0||typeof g.host!=="string"||!ID_RE.test(g.host))return null;
   return {v:+g.v||0,host:g.host,phase:g.phase,round:+g.round||0,gen:+g.gen||1,tr:Math.min(+g.tr||8,12),
-    deck:Array.isArray(g.deck)?g.deck.slice(0,12).map(n=>(+n|0)):[],sc:cleanMap(g.sc),d:cleanMap(g.d)};
+    deck:Array.isArray(g.deck)?g.deck.slice(0,12).map(n=>(+n|0)):[],sc:cleanMap(g.sc),d:cleanMap(g.d),
+    sk:Math.min(+g.sk||0,999),bs:cleanMap(g.bs),
+    mk:Array.isArray(g.mk)?g.mk.slice(0,16).filter(x=>typeof x==="string"&&ID_RE.test(x)):[]};
 }
 /* One entry per player id (the freshest tab wins) for a given room code. */
 function peersFor(c){
@@ -338,16 +668,20 @@ function peek(c){
   return {g:g,n:Object.keys(best).length,has:best};
 }
 function derive(){
-  const best=peersFor(code),players={},answers=[],votes=[];let game=null;
+  const best=peersFor(code),players={},answers=[],votes=[],reacts=[],aways=[];let game=null;
   Object.keys(best).forEach(id=>{
     const pr=best[id].presence;
     players[id]={name:String(pr.name).slice(0,16),joinedAt:+pr.jt||0};
     if(pr.a&&typeof pr.a.k==="string")answers.push({k:pr.a.k.slice(0,16),uid:id,text:String(pr.a.t||"").slice(0,180)});
     if(pr.v&&typeof pr.v.k==="string")votes.push({k:pr.v.k.slice(0,16),uid:id,choice:String(pr.v.c||"").slice(0,64)});
+    if(pr.x&&typeof pr.x.k==="string"&&pr.x.r&&typeof pr.x.r==="object"){
+      Object.keys(pr.x.r).slice(0,20).forEach(t=>{const n=+pr.x.r[t];if((t==="real"||ID_RE.test(t))&&n>=0&&n<EMOJI.length)reacts.push({k:pr.x.k.slice(0,16),uid:id,t:t,e:n|0});});
+    }
+    if(pr.w&&typeof pr.w.k==="string")aways.push({k:pr.w.k.slice(0,16),uid:id,s:Math.max(0,Math.min(+pr.w.s||0,3600))});
     const cg=cleanG(pr.g);
     if(cg&&(!game||cg.v>game.v))game=cg;
   });
-  S.players=players;S.answers=answers;S.votes=votes;
+  S.players=players;S.answers=answers;S.votes=votes;S.reacts=reacts;S.aways=aways;
   if(game){
     S.lastG=game;lostAt=0;S.game=game;
     ls("bn.lastg",JSON.stringify({c:code,g:game}));
@@ -387,7 +721,7 @@ async function createGame(){
     let c="";
     for(let i=0;i<8;i++){const t=genCode();if(!peek(t).n){c=t;break;}}
     if(!c) throw new Error("Could not find a free room code. Try again.");
-    mine={rc:c,id:myId,name:name,jt:Date.now(),g:{v:1,host:myId,phase:"lobby",round:0,gen:1,tr:8,deck:[],sc:{},d:{}}};
+    mine={rc:c,id:myId,name:name,jt:Date.now(),g:{v:1,host:myId,phase:"lobby",round:0,gen:1,tr:8,deck:[],sc:{},d:{},sk:0,bs:{},mk:[]}};
     await enter(c);
   }catch(e){setErr(why(e));busyBtn(false);}
 }
@@ -428,7 +762,7 @@ function teardown(){
 async function enter(c,lastG){
   teardown();
   code=c;
-  S={game:null,lastG:lastG||null,players:{},answers:[],votes:[]};
+  S={game:null,lastG:lastG||null,players:{},answers:[],votes:[],reacts:[],aways:[]};
   lastKey="";editing=false;draft="";draftKey="";advKey="";lostAt=0;
   ls("bn.room",c);
   try{location.hash="game-"+c;}catch(e){}
@@ -438,6 +772,8 @@ async function enter(c,lastG){
     armed="leave";
   });
   render();
+  mine.sn=encodeSeen();
+  awayAt=0;
   await setMine(mine);
 }
 function clearHash(){
@@ -448,7 +784,7 @@ function leaveGame(){
   ls("bn.room",null);ls("bn.mine",null);ls("bn.lastg",null);
   code=null;S=null;mine={};
   clearHash();
-  if(room)room.presence({rc:null,id:null,name:null,jt:null,a:null,v:null,g:null}).catch(()=>{});
+  if(room)room.presence({rc:null,id:null,name:null,jt:null,a:null,v:null,g:null,sn:null,x:null,w:null}).catch(()=>{});
   renderHome();
 }
 
@@ -464,7 +800,7 @@ function av(id){
   return '<span class="av" style="--h:'+h+'" aria-hidden="true">'+esc(nameOf(id).charAt(0).toUpperCase())+'</span>';
 }
 function wordOf(g){return WORDS[g.deck[g.round-1]]||WORDS[0];}
-const rkey=r=>S.game.gen+":"+r;
+const rkey=r=>S.game.gen+":"+r+":"+(S.game.sk||0);
 function answersFor(r){const k=rkey(r);return S.answers.filter(a=>a.k===k&&a.text);}
 function votesFor(r){
   const k=rkey(r),ids=answersFor(r).map(a=>a.uid);
@@ -472,13 +808,14 @@ function votesFor(r){
 }
 const myAnswer=()=>answersFor(S.game.round).find(a=>a.uid===myId);
 const myVote=()=>votesFor(S.game.round).find(v=>v.uid===myId);
-function computeRound(){
-  const g=S.game,sc=Object.assign({},g.sc),d={};
+function computeRound(base,marks){
+  const g=S.game,sc=Object.assign({},base),d={};
   Object.keys(S.players).forEach(id=>{sc[id]=+sc[id]||0;d[id]=0;});
   votesFor(g.round).forEach(v=>{
-    if(v.choice==="real"){sc[v.uid]+=2;d[v.uid]+=2;}
+    if(v.choice==="real"||marks.indexOf(v.choice)>=0){sc[v.uid]+=2;d[v.uid]+=2;}
     else if(v.choice in sc){sc[v.choice]+=1;d[v.choice]=(d[v.choice]||0)+1;}
   });
+  marks.forEach(m=>{if(m in sc){sc[m]+=3;d[m]=(d[m]||0)+3;}});
   return {sc:sc,d:d};
 }
 const ranked=sc=>playerList().sort((a,b)=>(sc[b.id]||0)-(sc[a.id]||0));
@@ -490,7 +827,7 @@ function optionList(){
 }
 
 /* ---------- Host automation ---------- */
-function toReveal(){const r=computeRound();return hostSet({phase:"reveal",sc:r.sc,d:r.d});}
+function toReveal(){const g=S.game,r=computeRound(g.sc,[]);return hostSet({phase:"reveal",bs:g.sc,sc:r.sc,d:r.d,mk:[]});}
 function hostTick(){
   if(!isHost())return;
   const g=S.game,n=Object.keys(S.players).length;
@@ -499,7 +836,7 @@ function hostTick(){
   if(g.phase==="write"&&answersFor(g.round).length>=n)next="vote";
   else if(g.phase==="vote"&&votesFor(g.round).length>=n)next="reveal";
   if(!next)return;
-  const k=g.gen+":"+g.round+":"+next;
+  const k=g.gen+":"+g.round+":"+(g.sk||0)+":"+next;
   if(advKey===k)return;
   advKey=k;
   (next==="reveal"?toReveal():hostSet({phase:next})).catch(()=>{advKey="";});
@@ -551,18 +888,21 @@ function lobbyView(){
 }
 function writeView(){
   const g=S.game,W=wordOf(g),mineA=myAnswer();
-  const dk=g.gen+":"+g.round;
+  const dk=rkey(g.round);
   if(draftKey!==dk){draft="";draftKey=dk;}
+  const skipNote=g.sk>0?'<p class="count">The host skipped the previous word.</p>':"";
+  const skipBtn=isHost()?'<div><button class="btn" data-act="skip">Skip this word</button></div>':"";
   if(!mineA||editing){
-    return headword(W)+
+    return headword(W)+skipNote+
       '<div class="stack"><label for="def">Write a fake definition</label>'+
       '<textarea id="def" maxlength="180" placeholder="Make it sound like a real dictionary entry. Plain, specific, a little dull."></textarea>'+
-      '<div class="row"><span class="count" id="cnt">0/180</span><button class="btn primary" id="submit" data-act="submit" disabled>Lock it in</button></div></div>'+
-      '<div id="prog" class="stack">'+progressBlock("write")+'</div>';
+      '<div class="row"><span class="count" id="cnt">0/180</span><button class="btn primary" id="submit" data-act="submit" disabled>Lock it in</button></div>'+
+      '<p class="count">Type your answer. Pasting is turned off, and everyone will see a note if you leave this page while you write.</p></div>'+
+      '<div id="prog" class="stack">'+progressBlock("write")+'</div>'+skipBtn;
   }
-  return headword(W)+
+  return headword(W)+skipNote+
     '<div class="stack"><p class="eyebrow">Your definition, locked in</p><p class="mine-text">'+esc(mineA.text)+'</p><div><button class="btn" data-act="edit">Edit it</button></div></div>'+
-    '<div id="prog" class="stack">'+progressBlock("write")+'</div>';
+    '<div id="prog" class="stack">'+progressBlock("write")+'</div>'+skipBtn;
 }
 function voteView(){
   const g=S.game,W=wordOf(g),opts=optionList(),my=myVote();
@@ -578,18 +918,38 @@ function rankRows(cur,delta){
     return '<li><span class="n">'+(i+1)+'</span>'+av(p.id)+'<span class="nm">'+esc(p.name||"Player")+(p.id===myId?'<em>you</em>':"")+'</span>'+(d>0?'<span class="delta">+'+d+'</span>':"")+'<span class="pts">'+(cur[p.id]||0)+'</span></li>';
   }).join("")+'</ol>';
 }
+function reactRow(t){
+  const k=rkey(S.game.round),cnt=EMOJI.map(()=>0);
+  let my=-1;
+  S.reacts.forEach(x=>{if(x.k===k&&x.t===t){cnt[x.e]++;if(x.uid===myId)my=x.e;}});
+  return '<div class="reacts" role="group" aria-label="Reactions">'+EMOJI.map((em,i)=>
+    '<button class="rx'+(my===i?" on":"")+'" data-act="react" data-t="'+esc(t)+'" data-i="'+i+'" aria-pressed="'+(my===i)+'" aria-label="React '+em+(cnt[i]?", "+cnt[i]:"")+'"><span aria-hidden="true">'+em+'</span>'+(cnt[i]?'<b>'+cnt[i]+'</b>':"")+'</button>'
+  ).join("")+'</div>';
+}
+function awayText(id){
+  const k=rkey(S.game.round),a=S.aways.find(x=>x.uid===id&&x.k===k);
+  if(!a||a.s<AWAY_MIN)return "";
+  const s=Math.round(a.s),t=s<60?s+" seconds":Math.floor(s/60)+" min "+(s%60)+" sec";
+  return '<p class="away">Stepped away from the page for '+t+' while writing.</p>';
+}
 function revealView(){
-  const g=S.game,W=wordOf(g),r=g.round,vs=votesFor(r);
+  const g=S.game,W=wordOf(g),r=g.round,vs=votesFor(r),host=isHost();
   const by=id=>vs.filter(v=>v.choice===id&&v.uid!==id).map(v=>v.uid);
   const real=by("real");
-  const fakes=answersFor(r).map(a=>({a:a,v:by(a.uid)})).sort((x,y)=>y.v.length-x.v.length);
+  const fakes=answersFor(r).map(a=>({a:a,v:by(a.uid),ok:g.mk.indexOf(a.uid)>=0})).sort((x,y)=>y.v.length-x.v.length);
   const realWho=real.length?'<div class="who"><span>Spotted by</span>'+real.map(id=>av(id)+'<b>'+esc(nameOf(id))+'</b>').join(" ")+'<span>(+2 each)</span></div>':'<p>Nobody found it.</p>';
-  const fk=fakes.map((f,i)=>'<article class="fake" style="--i:'+i+'"><p>'+esc(f.a.text)+'</p><p class="by">Written by <b>'+esc(nameOf(f.a.uid))+'</b></p>'+
-    (f.v.length?'<div class="who"><span>Fooled</span>'+f.v.map(id=>av(id)+'<b>'+esc(nameOf(id))+'</b>').join(" ")+'<span>(+'+f.v.length+')</span></div>':'<p class="by">Fooled nobody.</p>')+'</article>').join("");
+  const fk=fakes.map((f,i)=>{
+    const who=f.v.map(id=>av(id)+'<b>'+esc(nameOf(id))+'</b>').join(" ");
+    const body=f.ok
+      ?'<span class="badge">Marked correct, +3</span>'+(f.v.length?'<div class="who"><span>Spotted by</span>'+who+'<span>(+2 each)</span></div>':"")
+      :(f.v.length?'<div class="who"><span>Fooled</span>'+who+'<span>(+'+f.v.length+')</span></div>':'<p class="by">Fooled nobody.</p>');
+    const btn=host?'<div><button class="btn small" data-act="mark" data-id="'+esc(f.a.uid)+'" aria-pressed="'+f.ok+'">'+(f.ok?"Undo correct mark":"Mark as correct, +3")+'</button></div>':"";
+    return '<article class="fake'+(f.ok?" ok":"")+'" style="--i:'+i+'"><p>'+esc(f.a.text)+'</p><p class="by">Written by <b>'+esc(nameOf(f.a.uid))+'</b></p>'+awayText(f.a.uid)+body+reactRow(f.a.uid)+btn+'</article>';
+  }).join("");
   const last=r>=g.tr;
-  const next=isHost()?'<button class="btn primary block" data-act="next">'+(last?"See final scores":"Next round")+'</button>':'<p class="lede">Waiting for '+esc(nameOf(g.host))+' to continue.</p>';
+  const next=host?'<button class="btn primary block" data-act="next">'+(last?"See final scores":"Next round")+'</button>':'<p class="lede">Waiting for '+esc(nameOf(g.host))+' to continue.</p>';
   return headword(W)+
-    '<section class="truth"><p class="eyebrow">The real definition</p><p class="big">'+esc(W.d)+'</p>'+realWho+'</section>'+
+    '<section class="truth"><p class="eyebrow">The real definition</p><p class="big">'+esc(W.d)+'</p>'+realWho+reactRow("real")+'</section>'+
     (fk?'<div class="fakes">'+fk+'</div>':"")+
     '<h2 class="h2">Scores</h2>'+rankRows(g.sc,g.d)+next;
 }
@@ -624,7 +984,8 @@ function render(){
     return;
   }
   const g=S.game;
-  const key=[g.phase,g.gen,g.round,g.phase==="write"?(!!myAnswer()):"",editing,g.phase==="vote"?(myVote()?myVote().choice:"")+"/"+answersFor(g.round).length:""].join("|");
+  if(g.phase==="write")markSeen(g.deck[g.round-1]);
+  const key=[g.phase,g.gen,g.round,g.sk||0,g.phase==="write"?(!!myAnswer()):"",editing,g.phase==="vote"?(myVote()?myVote().choice:"")+"/"+answersFor(g.round).length:""].join("|");
   const same=key===lastKey;
   if(g.phase==="write"&&same&&$("#def")){const p=$("#prog");if(p)p.innerHTML=progressBlock("write");return;}
   if(g.phase==="vote"&&same&&$(".opts")){const p=$("#prog");if(p)p.innerHTML=progressBlock("vote");return;}
@@ -640,36 +1001,51 @@ function render(){
   const html=shell(inner,true);
   if(same&&html===lastHtml)return;
   armed="";
+  const y=same?window.scrollY:0;
   app.dataset.anim=same?"0":"1";
   app.innerHTML=html;
+  if(same)window.scrollTo(0,y);
   lastHtml=html;
   lastKey=key;
   const ta=$("#def");
   if(ta){
     if(editing&&!draft){const m=myAnswer();if(m)draft=m.text;}
-    ta.value=draft;
+    ta.value=draft;lastDef=draft;
     $("#cnt").textContent=ta.value.length+"/180";
     $("#submit").disabled=ta.value.trim().length<3;
   }
 }
 
 /* ---------- Actions ---------- */
+function pickWords(n,exclude,seed){
+  const cnt=new Array(WORDS.length).fill(0),best=peersFor(code),skip=new Set(exclude);
+  Object.keys(best).forEach(id=>{const bits=decodeSeen(best[id].presence.sn);for(let i=0;i<WORDS.length;i++)if(bits[i])cnt[i]++;});
+  return shuffled(WORDS.map((_,i)=>i),seed).filter(i=>!skip.has(i)).sort((a,b)=>cnt[a]-cnt[b]).slice(0,n);
+}
 async function startGame(){
   const g=S.game,n=Math.min(g.tr||8,WORDS.length);
-  const deck=shuffled(WORDS.map((_,i)=>i),code+":"+Date.now()).slice(0,n);
-  await hostSet({phase:"write",round:1,deck:deck,tr:n,sc:{},d:{}});
+  const deck=pickWords(n,[],code+":"+Date.now());
+  await hostSet({phase:"write",round:1,deck:deck,tr:n,sc:{},d:{},bs:{},mk:[],sk:0});
+}
+async function skipWord(){
+  const g=S.game;
+  if(!g||g.phase!=="write"||!isHost())return;
+  const next=pickWords(1,g.deck,code+":skip:"+Date.now()+":"+g.round);
+  if(!next.length){gameErr("There are no more words to skip to.");return;}
+  const deck=g.deck.slice();deck[g.round-1]=next[0];
+  await hostSet({deck:deck,sk:(g.sk||0)+1});
 }
 async function submitAnswer(){
   const g=S.game;
   const t=($("#def").value||"").trim().replace(/\s+/g," ");
   if(t.length<3)return;
   draft=t;editing=false;
-  try{await setMine({a:{k:g.gen+":"+g.round,t:t}});}
+  try{await setMine({a:{k:rkey(g.round),t:t}});}
   catch(e){editing=true;lastKey="";render();gameErr(why(e));}
 }
 async function castVote(id){
   const g=S.game;
-  await setMine({v:{k:g.gen+":"+g.round,c:id}});
+  await setMine({v:{k:rkey(g.round),c:id}});
 }
 async function forceAdvance(){
   const g=S.game;
@@ -679,11 +1055,11 @@ async function forceAdvance(){
 async function nextRound(){
   const g=S.game;
   if(g.round>=g.tr)await hostSet({phase:"done"});
-  else await hostSet({phase:"write",round:g.round+1});
+  else await hostSet({phase:"write",round:g.round+1,sk:0,mk:[]});
 }
 async function playAgain(){
   const g=S.game;
-  await hostSet({phase:"lobby",round:0,gen:g.gen+1,deck:[],sc:{},d:{}});
+  await hostSet({phase:"lobby",round:0,gen:g.gen+1,deck:[],sc:{},d:{},bs:{},mk:[],sk:0});
 }
 async function takeOver(){
   const base=S.game||S.lastG;
@@ -694,6 +1070,24 @@ async function takeOver(){
 async function copyCode(b){
   try{await navigator.clipboard.writeText(code);b.firstChild.textContent="Copied ";}
   catch(e){const el=$("#bigcode");if(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);}}
+}
+
+async function react(t,i){
+  const g=S.game;
+  if(!g||g.phase!=="reveal"||!(i>=0&&i<EMOJI.length))return;
+  const k=rkey(g.round);
+  const cur=(mine.x&&mine.x.k===k&&mine.x.r)?Object.assign({},mine.x.r):{};
+  if(cur[t]===i)delete cur[t];else cur[t]=i;
+  await setMine({x:{k:k,r:cur}});
+}
+async function mark(id){
+  const g=S.game;
+  if(!g||g.phase!=="reveal"||!isHost())return;
+  if(!answersFor(g.round).some(a=>a.uid===id))return;
+  const mk=g.mk.slice(),i=mk.indexOf(id);
+  if(i>=0)mk.splice(i,1);else mk.push(id);
+  const r=computeRound(g.bs,mk);
+  await hostSet({mk:mk,sc:r.sc,d:r.d});
 }
 
 app.addEventListener("click",async e=>{
@@ -714,17 +1108,21 @@ app.addEventListener("click",async e=>{
       case "next":gameErr("");return await nextRound();
       case "again":gameErr("");return await playAgain();
       case "takeover":return await takeOver();
+      case "react":return await react(b.dataset.t,+b.dataset.i);
+      case "mark":return await mark(b.dataset.id);
       case "leave":
-      case "take":{
+      case "take":
+      case "skip":{
         if(armed!==act){
           armed=act;b.dataset.label=b.textContent;
-          b.textContent=act==="leave"?"Tap again to leave":"Tap again to take over";
+          b.textContent=act==="leave"?"Tap again to leave":act==="skip"?"Tap again to skip this word":"Tap again to take over";
           clearTimeout(armT);
           armT=setTimeout(()=>{armed="";if(b.isConnected)b.textContent=b.dataset.label;},4000);
           return;
         }
         armed="";
         if(act==="leave")return leaveGame();
+        if(act==="skip")return await skipWord();
         return await takeOver();
       }
     }
@@ -733,6 +1131,8 @@ app.addEventListener("click",async e=>{
 app.addEventListener("input",e=>{
   const t=e.target;
   if(t.id==="def"){
+    if(t.value.length-lastDef.length>25&&e.inputType!=="insertCompositionText"){t.value=lastDef;pasteNote();return;}
+    lastDef=t.value;
     draft=t.value;
     $("#cnt").textContent=t.value.length+"/180";
     $("#submit").disabled=t.value.trim().length<3;
@@ -740,6 +1140,31 @@ app.addEventListener("input",e=>{
     t.value=t.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,4);
   }else if(t.id==="nick"){
     ls("bn.nick",t.value.trim());
+  }
+});
+const PASTE_NOTE="Pasting is turned off. Please type your answer.";
+function pasteNote(){
+  gameErr(PASTE_NOTE);clearTimeout(pasteT);
+  pasteT=setTimeout(()=>{const el=$("#gerr");if(el&&el.textContent===PASTE_NOTE)el.textContent="";},3500);
+}
+app.addEventListener("paste",e=>{if(e.target.id==="def"){e.preventDefault();pasteNote();}});
+app.addEventListener("drop",e=>{if(e.target.id==="def"){e.preventDefault();pasteNote();}});
+app.addEventListener("dragover",e=>{if(e.target.id==="def")e.preventDefault();});
+app.addEventListener("beforeinput",e=>{
+  if(e.target.id==="def"&&/^insertFrom(Paste|PasteAsQuotation|Drop|Yank)$/.test(e.inputType||"")){e.preventDefault();pasteNote();}
+});
+/* Time spent away from the page while writing an answer is shown to everyone on the reveal screen. */
+document.addEventListener("visibilitychange",()=>{
+  if(!S||!S.game)return;
+  if(document.hidden){
+    const g=S.game;
+    if(!awayAt&&g.phase==="write"&&S.players[myId]&&(!myAnswer()||editing)){awayAt=Date.now();awayHideKey=rkey(g.round);}
+  }else if(awayAt){
+    const dur=(Date.now()-awayAt)/1000,k=awayHideKey;
+    awayAt=0;
+    if(S.game.phase!=="write"||rkey(S.game.round)!==k)return;
+    const prev=(mine.w&&mine.w.k===k)?(+mine.w.s||0):0;
+    setMine({w:{k:k,s:Math.round((prev+dur)*10)/10}}).catch(()=>{});
   }
 });
 app.addEventListener("keydown",e=>{
@@ -787,6 +1212,7 @@ function makeSocketRoom(){
 }
 
 /* ---------- Boot ---------- */
+loadSeen();
 renderHome();
 window.__bnStarted=true;
 (async function boot(){
