@@ -126,6 +126,8 @@ body.chat-on{padding-bottom:84px}
 #chatform{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 14px max(10px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule)}
 #chatform .btn{min-height:52px}
 .av{flex:none;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:hsl(var(--h) var(--avs) var(--avl));color:var(--avfg);font-weight:700;font-size:.85rem}
+.segs.wrap{flex-wrap:wrap}
+.segs.wrap .seg{flex:1 1 auto;padding:0 14px}
 .segs{display:flex;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden}
 .seg{flex:1;min-height:48px;background:transparent;border:0;border-left:1.5px solid var(--ink);cursor:pointer;font-weight:600}
 .seg:first-child{border-left:0}
@@ -565,8 +567,312 @@ const WORDS=[
 {w:"quoin",p:"noun",d:"A cornerstone of a building."},
 {w:"taffrail",p:"noun",d:"The rail around the back of a ship."},
 {w:"ullage",p:"noun",d:"The amount of empty space left in a container of liquid, such as a barrel or bottle."},
-{w:"vellum",p:"noun",d:"Fine parchment made from calf skin."}
+{w:"vellum",p:"noun",d:"Fine parchment made from calf skin."},
+{w:"The Great Emu War",p:"historical event",d:"A 1932 effort by Australian soldiers with machine guns to cull emus that were wrecking wheat crops in Western Australia, which mostly failed."},
+{w:"The Defenestration of Prague",p:"historical event",d:"A 1618 incident in which angry Protestant nobles threw two royal governors and their secretary out of a castle window, helping to set off the Thirty Years' War."},
+{w:"The Pig War",p:"historical event",d:"A 1859 standoff between American and British forces over the San Juan Islands that began when an American farmer shot a pig, and ended with no battle deaths."},
+{w:"The War of Jenkins' Ear",p:"historical event",d:"A war between Britain and Spain that began in 1739 and was named after a sailor who showed Parliament his severed ear."},
+{w:"The Great Molasses Flood",p:"historical event",d:"A 1919 disaster in Boston when a huge tank of syrup burst and sent a sticky wave through the streets."},
+{w:"The Dancing Plague of 1518",p:"historical event",d:"An episode in Strasbourg in which dozens of people danced in the streets for days without rest and some collapsed from exhaustion."},
+{w:"Tulip Mania",p:"historical event",d:"A Dutch craze in the 1630s in which prices for flower bulbs rose to extreme heights and then suddenly crashed."},
+{w:"The Great Stink",p:"historical event",d:"A summer 1858 event in London when the smell of the polluted River Thames became so bad that Parliament approved a new sewer system."},
+{w:"The Year Without a Summer",p:"historical event",d:"The cold and wet 1816, caused by a volcanic eruption in Indonesia the year before, which ruined crops across Europe and North America."},
+{w:"The Cadaver Synod",p:"historical event",d:"A 897 trial in Rome in which the dug up corpse of Pope Formosus was put on trial by Pope Stephen VI."},
+{w:"The Tunguska Event",p:"historical event",d:"A huge 1908 explosion in the sky over remote Siberia that flattened millions of trees, probably caused by a space rock breaking up in the air."},
+{w:"The Carrington Event",p:"historical event",d:"An 1859 solar storm, the strongest on record, that made auroras visible near the equator and caused sparks and fires at telegraph stations."},
+{w:"The Wow! Signal",p:"historical event",d:"A strong, brief radio signal from space picked up by an Ohio telescope in 1977 and never detected again."},
+{w:"The Piltdown Man Hoax",p:"historical event",d:"A fake fossil skull presented in England in 1912 as the missing link between apes and humans, exposed as a fraud in 1953."},
+{w:"The Bonus Army March",p:"historical event",d:"A 1932 protest in which thousands of World War I veterans camped in Washington to demand early payment of their service bonuses."},
+{w:"The Scopes Trial",p:"historical event",d:"A 1925 Tennessee trial of a teacher charged with breaking a state law by teaching evolution."},
+{w:"The Teapot Dome Scandal",p:"historical event",d:"A 1920s American scandal in which a cabinet official secretly leased government oil reserves to private companies in exchange for bribes."},
+{w:"The Whiskey Rebellion",p:"historical event",d:"A 1790s uprising by farmers in western Pennsylvania who refused to pay a new federal tax on distilled spirits."},
+{w:"The Zimmermann Telegram",p:"historical event",d:"A secret 1917 German message proposing that Mexico join a war against the United States, which was intercepted and decoded by Britain."},
+{w:"The Burning of Washington",p:"historical event",d:"An 1814 attack in which British troops set fire to the Capitol and the White House."},
+{w:"The Mary Celeste Mystery",p:"historical event",d:"In 1872 a sailing ship was found drifting in the Atlantic with its cargo intact and no crew aboard, and no one ever learned what happened."},
+{w:"The Lost Colony of Roanoke",p:"historical event",d:"An English settlement on the coast of present day North Carolina whose settlers vanished before 1590, leaving only the word Croatoan carved on a post."},
+{w:"The Eruption of Krakatoa",p:"historical event",d:"An 1883 volcanic explosion in Indonesia that was heard thousands of miles away and affected weather around the world for years."},
+{w:"The Treaty of Tordesillas",p:"historical event",d:"A 1494 agreement in which Spain and Portugal divided the lands newly found outside Europe along a line drawn down the Atlantic."},
+{w:"The Diet of Worms",p:"historical event",d:"A 1521 assembly in Germany where Martin Luther refused to take back his writings before the Holy Roman Emperor."},
+{w:"The Edict of Nantes",p:"historical event",d:"A 1598 decree by Henry IV of France that gave French Protestants the right to worship in many parts of the country."},
+{w:"The Boxer Rebellion",p:"historical event",d:"An uprising in China from 1899 to 1901 against foreign influence and Christian missionaries, put down by an alliance of foreign armies."},
+{w:"The Taiping Rebellion",p:"historical event",d:"A huge civil war in China from 1850 to 1864 led by a man who claimed to be the younger brother of Jesus."},
+{w:"The Meiji Restoration",p:"historical event",d:"The 1868 event that returned real power to the emperor of Japan and ended the rule of the shoguns."},
+{w:"The Indian Rebellion of 1857",p:"historical event",d:"An uprising that began among Indian soldiers serving the British East India Company and spread across northern India."},
+{w:"The Finding of the Rosetta Stone",p:"historical event",d:"A 1799 discovery by French soldiers in Egypt of a slab carved with the same text in three scripts, which later helped decode hieroglyphs."},
+{w:"The Discovery of Tutankhamun's Tomb",p:"historical event",d:"Archaeologist Howard Carter's 1922 find of a nearly untouched royal burial chamber in Egypt's Valley of the Kings."},
+{w:"The Salem Witch Trials",p:"historical event",d:"A series of 1692 hearings in colonial Massachusetts that led to nineteen people being hanged for witchcraft."},
+{w:"The Louisiana Purchase",p:"historical event",d:"An 1803 deal in which the United States bought a vast territory from France, roughly doubling its size."},
+{w:"The Alaska Purchase",p:"historical event",d:"An 1867 deal in which the United States bought a huge northern territory from Russia for 7.2 million dollars, a price many at the time mocked."},
+{w:"The Donner Party",p:"historical event",d:"A group of American pioneers who got trapped by heavy snow in the Sierra Nevada in 1846 and 1847 and ran out of food."},
+{w:"The Pony Express",p:"historical event",d:"A fast mail service of 1860 and 1861 that used relays of riders on horseback to carry letters between Missouri and California."},
+{w:"The California Gold Rush",p:"historical event",d:"A mass migration that began in 1848 after gold was found at a sawmill in northern California."},
+{w:"The Dust Bowl",p:"historical event",d:"A long drought and wave of dust storms in the 1930s that ruined farms across the American Plains."},
+{w:"Operation Mincemeat",p:"historical event",d:"A 1943 British plot that floated a dead man carrying false papers to Spain to trick Germany into expecting an invasion somewhere other than Sicily."},
+{w:"The Great Escape",p:"historical event",d:"A 1944 breakout in which Allied prisoners dug tunnels out of a German camp, though most of the escapees were caught again."},
+{w:"The Cuban Missile Crisis",p:"historical event",d:"A 1962 standoff in which the United States and the Soviet Union came close to war over nuclear missiles placed on an island near Florida."},
+{w:"The Bay of Pigs Invasion",p:"historical event",d:"A failed 1961 attempt by Cuban exiles, backed by the United States, to overthrow Fidel Castro."},
+{w:"The Berlin Airlift",p:"historical event",d:"A 1948 to 1949 operation in which Western planes flew in food and fuel to a city blockaded by the Soviet Union."},
+{w:"The Kitchen Debate",p:"historical event",d:"A 1959 argument between Richard Nixon and Nikita Khrushchev held in a model home at an exhibition in Moscow."},
+{w:"The Cod Wars",p:"historical event",d:"A series of disputes between Britain and Iceland, mostly in the 1950s to 1970s, over fishing rights in the North Atlantic."},
+{w:"The Pastry War",p:"historical event",d:"An 1838 French blockade of Mexican ports that began partly over claims by a French baker whose shop had been looted."},
+{w:"The War of the Bucket",p:"historical event",d:"A 14th century conflict between the Italian cities of Modena and Bologna that began when raiders stole a wooden pail from a well."},
+{w:"The War of the Stray Dog",p:"historical event",d:"A 1925 border clash between Greece and Bulgaria that began when a Greek soldier ran after his dog across the border and was shot."},
+{w:"The Football War",p:"historical event",d:"A 1969 conflict between El Salvador and Honduras that followed riots at World Cup qualifying matches."},
+{w:"The Aroostook War",p:"historical event",d:"A bloodless 1838 and 1839 border dispute between Maine and the British province of New Brunswick."},
+{w:"The Toledo War",p:"historical event",d:"A 1835 dispute between Ohio and Michigan Territory over a strip of land, settled when Michigan accepted the Upper Peninsula as compensation."},
+{w:"The Anglo Zanzibar War",p:"historical event",d:"An 1896 conflict that lasted less than an hour and is considered the shortest war in recorded history."},
+{w:"The Children's Crusade",p:"historical event",d:"A partly legendary 1212 movement in which groups of young people set out from France and Germany hoping to retake Jerusalem, and none are known to have reached it."},
+{w:"The Sack of Rome",p:"historical event",d:"A 410 attack in which Visigoths led by Alaric entered the city and plundered it for three days."},
+{w:"The Battle of Tours",p:"historical event",d:"A 732 victory in France in which Frankish forces led by Charles Martel stopped a Muslim army advancing north from Spain."},
+{w:"The Battle of Lepanto",p:"historical event",d:"A 1571 naval battle in which a Christian alliance of Mediterranean powers defeated the Ottoman fleet."},
+{w:"The Spanish Armada",p:"historical event",d:"A fleet of about 130 ships sent by Philip II in 1588 to invade England, which was beaten and scattered by English attacks and bad weather."},
+{w:"The Reichstag Fire",p:"historical event",d:"A 1933 blaze that heavily damaged the German parliament building and was used by the Nazis to justify taking emergency powers."},
+{w:"The Beer Hall Putsch",p:"historical event",d:"A failed 1923 attempt by Adolf Hitler and his followers to seize power in Bavaria."},
+{w:"The Long March",p:"historical event",d:"A 1934 and 1935 retreat in which Chinese Communist forces traveled thousands of miles on foot to escape their enemies."},
+{w:"The Velvet Revolution",p:"historical event",d:"The peaceful 1989 movement that ended Communist rule in Czechoslovakia."},
+{w:"The Carnation Revolution",p:"historical event",d:"A 1974 military coup in Portugal that ended a long dictatorship with almost no bloodshed, named for the flowers people put in soldiers' rifles."},
+{w:"The Singing Revolution",p:"historical event",d:"A peaceful movement of the late 1980s in which people in Estonia, Latvia and Lithuania used mass songs to protest Soviet rule."},
+{w:"The Orange Revolution",p:"historical event",d:"Mass protests in Ukraine in 2004 against a rigged presidential election, which led to a new vote."},
+{w:"The Suez Crisis",p:"historical event",d:"A 1956 conflict that followed Egypt's takeover of a key shipping canal, drawing in Britain, France and Israel."},
+{w:"The Gallipoli Campaign",p:"historical event",d:"A failed 1915 Allied attempt to capture a peninsula in Turkey and open a sea route to Russia."},
+{w:"The Great Plague of London",p:"historical event",d:"An outbreak of disease in 1665 and 1666 that killed a large share of the city's people."},
+{w:"The Peasants' Revolt",p:"historical event",d:"A 1381 uprising in England sparked by a new poll tax, during which rebels marched on London."},
+{w:"The Wars of the Roses",p:"historical event",d:"A 15th century struggle for the English throne between two rival branches of one royal family."},
+{w:"The Glorious Revolution",p:"historical event",d:"The 1688 overthrow of King James II of England in favor of his daughter Mary and her husband William of Orange."},
+{w:"The Eureka Rebellion",p:"historical event",d:"An 1854 revolt by gold miners in Ballarat, Australia, against license fees and harsh treatment by authorities."},
+{w:"The Easter Rising",p:"historical event",d:"A 1916 armed revolt in Dublin by Irish republicans against British rule."},
+{w:"The Salt March",p:"historical event",d:"A 1930 protest in which Mahatma Gandhi led followers about 240 miles on foot to the sea to make their own, defying a British tax and monopoly."},
+{w:"The Partition of India",p:"historical event",d:"The 1947 division of British India into two independent countries, India and Pakistan."},
+{w:"The Apollo 13 Mission",p:"historical event",d:"A 1970 moon flight cut short by an oxygen tank explosion, after which the crew returned safely to Earth."},
+{w:"The Apollo Soyuz Test Project",p:"historical event",d:"A 1975 mission in which American and Soviet spacecraft docked in orbit and the crews shook hands."},
+{w:"Dolly the Sheep",p:"historical event",d:"A lamb born in Scotland in 1996 that became the first mammal cloned from an adult cell."},
+{w:"The Kon Tiki Expedition",p:"historical event",d:"A 1947 voyage in which Thor Heyerdahl and five companions sailed a balsa raft across the Pacific to test an idea about early migration."},
+{w:"The First Ascent of Everest",p:"historical event",d:"A 1953 climb by Edmund Hillary and Tenzing Norgay, widely recognized as the first confirmed success on the world's tallest mountain."},
+{w:"Magellan's Circumnavigation",p:"historical event",d:"A 1519 to 1522 voyage that sailed around the world, though its famous captain was killed before it ended."},
+{w:"The Lewis and Clark Expedition",p:"historical event",d:"A journey from 1804 to 1806 in which explorers crossed the western United States to the Pacific, sent by President Jefferson."},
+{w:"The Treaty of Versailles",p:"historical event",d:"The 1919 peace settlement that formally ended World War I with Germany and required it to pay reparations."},
+{w:"The Iran Hostage Crisis",p:"historical event",d:"A 1979 to 1981 ordeal in which Iranian students held American embassy staff captive for 444 days."},
+{w:"The Watergate Scandal",p:"historical event",d:"A political scandal of the early 1970s that began with a burglary at an office complex and led to the resignation of President Nixon."},
+{w:"The Great Train Robbery",p:"historical event",d:"A 1963 British heist in which a gang stopped a mail train and stole about 2.6 million pounds."},
+{w:"The Great Exhibition",p:"historical event",d:"An 1851 world's fair in London held in a giant glass building called the Crystal Palace."},
+{w:"The Nika Riots",p:"historical event",d:"A 532 uprising in Constantinople that began at the chariot races and nearly toppled Emperor Justinian."},
+{w:"The Council of Nicaea",p:"historical event",d:"A 325 gathering of Christian bishops called by Emperor Constantine that produced an early statement of Christian belief."},
+{w:"The Great Schism",p:"historical event",d:"The 1054 split between the Eastern and Western branches of Christianity."},
+{w:"The Fall of the Western Roman Empire",p:"historical event",d:"The 476 event in which the last emperor in the West was removed by the Germanic leader Odoacer."},
+{w:"The Sack of Baghdad",p:"historical event",d:"A 1258 siege in which Mongol armies captured the Abbasid capital and destroyed its great libraries."},
+{w:"The Battle of Agincourt",p:"historical event",d:"A 1415 battle in which a smaller English army, helped by longbowmen, defeated a much larger French force."},
+{w:"The Battle of Thermopylae",p:"historical event",d:"A 480 BC stand in which a small Greek force led by King Leonidas of Sparta held a narrow pass against a huge Persian army."},
+{w:"The Battle of Marathon",p:"historical event",d:"A 490 BC Athenian victory over a Persian invasion force, said to have inspired the long distance race."},
+{w:"The Voyage of the Beagle",p:"historical event",d:"A 1831 to 1836 survey voyage on which Charles Darwin collected the observations that shaped his theory of evolution."},
+{w:"The Dreyfus Affair",p:"historical event",d:"A French scandal from 1894 in which a Jewish army officer was falsely convicted of treason, splitting the country for years."},
+{w:"The Fashoda Incident",p:"historical event",d:"An 1898 standoff in Sudan between British and French forces over control of territory in Africa, ending when France backed down."},
+{w:"The Pullman Strike",p:"historical event",d:"A 1894 railroad strike that began at a factory town near Chicago and spread across the country, ending when federal troops intervened."},
+{w:"The Sinking of the Vasa",p:"historical event",d:"A 1628 disaster in which a brand new Swedish warship capsized and sank on its maiden voyage after sailing about a mile."},
+{w:"The Tennis Court Oath",p:"historical event",d:"A 1789 pledge in which French deputies swore not to separate until they had written a constitution."},
+{w:"The Reign of Terror",p:"historical event",d:"A period in 1793 and 1794 during the French Revolution when thousands were executed as enemies of the new government."},
+{w:"The Mutiny on the Bounty",p:"historical event",d:"A 1789 revolt in which sailors seized a British ship in the Pacific and set their captain adrift in a small boat."},
+{w:"The Great Siege of Malta",p:"historical event",d:"A 1565 attack in which the Ottoman Empire failed to capture the island from the Knights of St. John after months of fighting."},
+{w:"The Siege of Vienna",p:"historical event",d:"A 1683 attack by the Ottoman Empire on the Austrian capital that was broken by an army led by the king of Poland."},
+{w:"The Congress of Vienna",p:"historical event",d:"A 1814 to 1815 meeting of European powers that redrew the map of Europe after the defeat of Napoleon."},
+{w:"The Revolutions of 1848",p:"historical event",d:"A wave of uprisings that swept across Europe in that year, nicknamed the Springtime of Nations, and mostly failed."},
+{w:"The Perry Expedition",p:"historical event",d:"The 1853 and 1854 voyage of American warships into Tokyo Bay that pressured Japan to open its ports to foreign trade."},
+{w:"The Russo Japanese War",p:"historical event",d:"A 1904 and 1905 conflict in which Japan defeated Russia, shocking observers who expected a European power to win."},
+{w:"The Siege of the Alamo",p:"historical event",d:"A 1836 battle in Texas in which a small force of rebels held an old mission for about thirteen days against a Mexican army."},
+{w:"The Great Blizzard of 1888",p:"historical event",d:"A huge storm that buried the northeastern United States in snow in March of that year and led New York City to put more of its wires and transit underground."},
+{w:"The Prohibition Era",p:"historical event",d:"A period from 1920 to 1933 when making and selling alcoholic drinks was illegal in the United States."},
+{w:"The Doolittle Raid",p:"historical event",d:"A 1942 American air attack on Tokyo launched from an aircraft carrier, using bombers that were not designed for that kind of takeoff."},
+{w:"The Manhattan Project",p:"historical event",d:"A secret American program during World War II that built the first nuclear weapons."},
+{w:"The Nuremberg Trials",p:"historical event",d:"A series of trials held from 1945 to 1946 in which leaders of Nazi Germany were prosecuted by the Allies."},
+{w:"The Battle of Midway",p:"historical event",d:"A June 1942 naval battle in the Pacific in which American forces sank four Japanese aircraft carriers."},
+{w:"The Channel Tunnel Opening",p:"historical event",d:"The 1994 opening of a railway link under the sea between Britain and France."},
+{w:"The Great Fire of London",p:"historical event",d:"A 1666 blaze that began in a bakery on Pudding Lane and destroyed much of the medieval city."},
+{w:"The Gunpowder Plot",p:"historical event",d:"A failed 1605 conspiracy by English Catholics to blow up Parliament and the king."},
+{w:"The Christmas Truce",p:"historical event",d:"A spontaneous 1914 pause in fighting on the Western Front when soldiers from both sides met in no man's land and exchanged gifts."},
+{w:"The Hundred Years' War",p:"historical event",d:"A series of conflicts between England and France that lasted from 1337 to 1453."},
+{w:"The Thirty Years' War",p:"historical event",d:"A devastating 1618 to 1648 conflict in central Europe that began as a religious fight in the Holy Roman Empire."},
+{w:"The Crimean War",p:"historical event",d:"A 1853 to 1856 war in which Britain, France and the Ottoman Empire fought Russia, remembered partly for the nurse Florence Nightingale."},
+{w:"The Opium Wars",p:"historical event",d:"Two 19th century conflicts in which Britain used force to make China accept the trade in a drug grown in India."},
+{w:"The Mexican Revolution",p:"historical event",d:"A long conflict that began in 1910 with uprisings against the dictator Porfirio Diaz, who resigned the following year."},
+{w:"The Norman Conquest",p:"historical event",d:"The 1066 takeover of England by the duke of a region in northern France."},
+{w:"The Domesday Book",p:"historical event",d:"A great survey of England ordered by William the Conqueror in 1085 to record who owned what land."},
+{w:"The Black Death",p:"historical event",d:"A plague that reached Europe in 1347 and killed a large share of its people."},
+{w:"The Klondike Gold Rush",p:"historical event",d:"A 1896 to 1899 rush of tens of thousands of prospectors to northwest Canada after gold was found near the Yukon."},
+{w:"The Discovery of Penicillin",p:"historical event",d:"A 1928 observation by Alexander Fleming that a mold had killed bacteria in one of his lab dishes, leading to the first widely used antibiotic."},
+{w:"The Gutenberg Bible",p:"historical event",d:"The first major book printed in Europe with movable metal type, produced in Mainz in the 1450s."},
+{w:"The Discovery of Neptune",p:"historical event",d:"The 1846 finding of a new planet that had been predicted by mathematics before anyone saw it."},
+{w:"The Michelson Morley Experiment",p:"historical event",d:"An 1887 test that failed to find the luminiferous ether, an invisible substance once thought to carry light waves."},
+{w:"The Seneca Falls Convention",p:"historical event",d:"An 1848 gathering in New York that launched the organized movement for women's rights in the United States."},
+{w:"The Great Compromise",p:"historical event",d:"A 1787 agreement at the Constitutional Convention that created a Senate with equal votes for each state and a House based on population."},
+{w:"The Great Chicago Fire",p:"historical event",d:"An 1871 blaze that burned for about two days and destroyed much of a midwestern city's center."},
+{w:"The Retreat from Moscow",p:"historical event",d:"Napoleon's 1812 withdrawal from Russia, in which cold, hunger and disease destroyed most of his army."},
+{w:"The Battle of Trafalgar",p:"historical event",d:"A 1805 naval battle off Spain in which Britain's fleet under Nelson defeated France and Spain, though Nelson was killed."},
+{w:"The Franco Prussian War",p:"historical event",d:"An 1870 to 1871 war in which Prussia and its allies defeated France and the German Empire was proclaimed."},
+{w:"The Paris Commune",p:"historical event",d:"A radical revolutionary government that ruled the French capital for about two months in 1871."},
+{w:"The Prague Spring",p:"historical event",d:"A 1968 period of political reform in Czechoslovakia that ended when Warsaw Pact forces invaded."},
+{w:"The Tet Offensive",p:"historical event",d:"A surprise 1968 attack by North Vietnamese and Viet Cong forces during a holiday truce that shifted American opinion against the war."},
+{w:"The Cultural Revolution",p:"historical event",d:"A decade of upheaval launched by Mao Zedong in 1966 to purge supposed enemies of communism in China."},
+{w:"The Montgomery Bus Boycott",p:"historical event",d:"A 1955 to 1956 protest in Alabama in which Black residents refused to ride city buses after Rosa Parks was arrested."},
+{w:"The Falklands War",p:"historical event",d:"A 1982 conflict in which Britain took back islands in the South Atlantic after Argentina invaded them."},
+{w:"The Chilean Miners Rescue",p:"historical event",d:"In 2010 thirty three miners trapped underground in Chile for 69 days were all brought to the surface alive."},
+{w:"The South Sea Bubble",p:"historical event",d:"A 1720 British stock market crash after a company with trading rights in Spanish America saw its shares soar and then collapse."},
+{w:"The Munich Agreement",p:"historical event",d:"A 1938 deal in which Britain and France let Germany take part of Czechoslovakia, hoping to avoid war."},
+{w:"The Voyages of Zheng He",p:"historical event",d:"A series of large treasure fleet voyages sent out by China's Ming emperors in the early 1400s, reaching India and East Africa."},
+{w:"The Battle of Bosworth Field",p:"historical event",d:"A 1485 battle in which Richard III was killed, ending the Wars of the Roses and bringing the Tudors to power."},
+{w:"January 1, 1863",p:"date",d:"President Lincoln's Emancipation Proclamation took effect, declaring enslaved people in areas held by the Confederacy to be free."},
+{w:"January 9, 2007",p:"date",d:"Steve Jobs unveiled the first iPhone on stage in San Francisco."},
+{w:"January 10, 1863",p:"date",d:"The world's first underground passenger railway opened in London."},
+{w:"January 24, 1848",p:"date",d:"James Marshall found gold at Sutter's Mill in California, setting off the Gold Rush."},
+{w:"February 2, 1887",p:"date",d:"The first Groundhog Day was celebrated in Punxsutawney, Pennsylvania."},
+{w:"February 4, 2004",p:"date",d:"Mark Zuckerberg launched Facebook from his Harvard dorm room."},
+{w:"February 6, 1840",p:"date",d:"The Treaty of Waitangi was first signed by Maori chiefs and representatives of the British Crown in New Zealand."},
+{w:"February 9, 1964",p:"date",d:"The Beatles made their first live appearance on The Ed Sullivan Show in the United States."},
+{w:"February 11, 1990",p:"date",d:"Nelson Mandela walked out of prison in South Africa after 27 years."},
+{w:"February 12, 1809",p:"date",d:"Abraham Lincoln and Charles Darwin were both born on this day."},
+{w:"February 14, 1876",p:"date",d:"Alexander Graham Bell and Elisha Gray filed for telephone patents within hours of each other."},
+{w:"February 18, 1930",p:"date",d:"Astronomer Clyde Tombaugh found Pluto while studying photographs taken at Lowell Observatory."},
+{w:"February 21, 1848",p:"date",d:"Karl Marx and Friedrich Engels published The Communist Manifesto in London, a release usually dated to this day."},
+{w:"March 5, 1770",p:"date",d:"British soldiers fired into a crowd in Boston, an event colonists called a massacre."},
+{w:"March 6, 1836",p:"date",d:"Mexican troops captured the Alamo mission in Texas after a siege of about thirteen days."},
+{w:"March 9, 1959",p:"date",d:"The Barbie doll debuted at the American Toy Fair in New York."},
+{w:"March 10, 1876",p:"date",d:"Alexander Graham Bell made the first successful telephone call, speaking to his assistant in the next room."},
+{w:"March 12, 1930",p:"date",d:"Mahatma Gandhi began his famous walk to the sea to protest the British tax on salt."},
+{w:"March 13, 1781",p:"date",d:"William Herschel spotted a new planet that was later named Uranus."},
+{w:"March 14, 1879",p:"date",d:"Albert Einstein was born in Ulm, Germany."},
+{w:"March 15, 44 BC",p:"date",d:"Julius Caesar was assassinated by a group of senators in Rome."},
+{w:"March 18, 1965",p:"date",d:"Alexei Leonov became the first person to walk in space."},
+{w:"March 21, 2006",p:"date",d:"Jack Dorsey sent the first message on Twitter."},
+{w:"March 24, 1989",p:"date",d:"The oil tanker Exxon Valdez ran aground in Alaska and spilled millions of gallons of crude oil."},
+{w:"April 3, 1860",p:"date",d:"The first Pony Express riders set out, one from each end of the route."},
+{w:"April 5, 1722",p:"date",d:"Dutch explorer Jacob Roggeveen reached a Pacific island on a Sunday and named it after the holiday."},
+{w:"April 6, 1896",p:"date",d:"The first modern Olympic Games opened in Athens."},
+{w:"April 9, 1865",p:"date",d:"Confederate General Robert E. Lee surrendered to Ulysses S. Grant at Appomattox Court House."},
+{w:"April 10, 1912",p:"date",d:"The Titanic left Southampton, England, on her maiden voyage."},
+{w:"April 12, 1861",p:"date",d:"Confederate guns opened fire on Fort Sumter, beginning the American Civil War."},
+{w:"April 12, 1961",p:"date",d:"Yuri Gagarin became the first human to travel into space."},
+{w:"April 18, 1775",p:"date",d:"Paul Revere and William Dawes rode out to warn colonists that British troops were coming."},
+{w:"April 19, 1775",p:"date",d:"The first shots of the American Revolutionary War were fired at Lexington and Concord."},
+{w:"April 21, 753 BC",p:"date",d:"The traditional date for the founding of Rome by Romulus."},
+{w:"April 22, 1970",p:"date",d:"The first Earth Day was held across the United States."},
+{w:"April 24, 1990",p:"date",d:"The Hubble Space Telescope was launched aboard the space shuttle Discovery."},
+{w:"April 30, 1789",p:"date",d:"George Washington took the oath of office as the first president of the United States in New York City."},
+{w:"May 1, 1931",p:"date",d:"The Empire State Building opened in New York City."},
+{w:"May 5, 1961",p:"date",d:"Alan Shepard became the first American in space."},
+{w:"May 6, 1954",p:"date",d:"Roger Bannister ran the first mile in under four minutes."},
+{w:"May 7, 1824",p:"date",d:"Beethoven's Ninth Symphony premiered in Vienna, even though the composer was almost completely deaf."},
+{w:"May 8, 1945",p:"date",d:"Germany's surrender took effect, celebrated in Europe as Victory in Europe Day."},
+{w:"May 10, 1869",p:"date",d:"A golden spike was driven in Utah to complete the first American transcontinental railroad."},
+{w:"May 11, 1997",p:"date",d:"IBM's Deep Blue computer beat world chess champion Garry Kasparov in a six game match."},
+{w:"May 13, 1940",p:"date",d:"Winston Churchill told Parliament he had nothing to offer but blood, toil, tears and sweat."},
+{w:"May 14, 1948",p:"date",d:"David Ben Gurion declared the establishment of the State of Israel."},
+{w:"May 20, 1927",p:"date",d:"Charles Lindbergh took off from New York on the first solo nonstop flight across the Atlantic."},
+{w:"May 25, 1977",p:"date",d:"The first Star Wars film opened in American theaters."},
+{w:"May 29, 1453",p:"date",d:"Ottoman forces captured Constantinople, ending the Byzantine Empire."},
+{w:"May 29, 1953",p:"date",d:"Edmund Hillary and Tenzing Norgay reached the summit of Mount Everest."},
+{w:"June 1, 1980",p:"date",d:"CNN launched as the first twenty four hour television news channel."},
+{w:"June 3, 1965",p:"date",d:"Ed White became the first American to walk in space."},
+{w:"June 4, 1940",p:"date",d:"Churchill gave his speech promising to fight on the beaches as the evacuation from Dunkirk ended."},
+{w:"June 6, 1944",p:"date",d:"Allied troops landed on the beaches of Normandy in France on D-Day."},
+{w:"June 12, 1987",p:"date",d:"President Ronald Reagan stood at the Berlin Wall and urged Soviet leader Mikhail Gorbachev to tear it down."},
+{w:"June 14, 1777",p:"date",d:"The Continental Congress adopted the Stars and Stripes as the flag of the United States."},
+{w:"June 15, 1215",p:"date",d:"King John of England agreed to the Magna Carta at Runnymede."},
+{w:"June 16, 1904",p:"date",d:"The single day on which James Joyce set the events of his novel Ulysses, now celebrated as Bloomsday."},
+{w:"June 18, 1815",p:"date",d:"Napoleon was defeated at the Battle of Waterloo in present day Belgium."},
+{w:"June 25, 1876",p:"date",d:"Lakota and Cheyenne warriors defeated George Armstrong Custer's cavalry at the Battle of the Little Bighorn."},
+{w:"June 28, 1919",p:"date",d:"The Treaty of Versailles was signed, officially ending World War I with Germany."},
+{w:"July 1, 1867",p:"date",d:"Canada became a self governing country when three colonies joined in a confederation."},
+{w:"July 4, 1776",p:"date",d:"The Continental Congress approved the Declaration of Independence."},
+{w:"July 4, 1826",p:"date",d:"Former presidents Thomas Jefferson and John Adams both died, exactly fifty years after the Declaration of Independence."},
+{w:"July 5, 1996",p:"date",d:"Dolly the sheep, the first mammal cloned from an adult cell, was born in Scotland."},
+{w:"July 8, 1497",p:"date",d:"Vasco da Gama sailed from Lisbon on his voyage to find a sea route to India."},
+{w:"July 9, 1816",p:"date",d:"Argentina declared independence from Spain."},
+{w:"July 11, 1804",p:"date",d:"Aaron Burr shot Alexander Hamilton in a duel in New Jersey."},
+{w:"July 13, 1985",p:"date",d:"The Live Aid concerts were held in London and Philadelphia to raise money for famine relief in Africa."},
+{w:"July 15, 1799",p:"date",d:"French soldiers in Egypt found the Rosetta Stone."},
+{w:"July 16, 1945",p:"date",d:"The first atomic bomb was tested at the Trinity site in New Mexico."},
+{w:"July 17, 1955",p:"date",d:"Disneyland held its televised opening day for invited guests in Anaheim, California."},
+{w:"July 20, 1969",p:"date",d:"Apollo 11 landed on the moon."},
+{w:"July 21, 1861",p:"date",d:"The first major land battle of the American Civil War, the First Battle of Bull Run, was fought in Virginia."},
+{w:"July 25, 1978",p:"date",d:"Louise Brown, the first baby conceived through in vitro fertilization, was born in England."},
+{w:"July 30, 1930",p:"date",d:"Uruguay beat Argentina to win the first soccer World Cup."},
+{w:"August 1, 1981",p:"date",d:"MTV launched with a music video called Video Killed the Radio Star."},
+{w:"August 3, 1492",p:"date",d:"Christopher Columbus set sail from Spain on his first voyage across the Atlantic."},
+{w:"August 6, 1991",p:"date",d:"Tim Berners-Lee announced the World Wide Web project to the public and invited outsiders to use it."},
+{w:"August 8, 1963",p:"date",d:"A gang robbed a Royal Mail train in England and took about 2.6 million pounds."},
+{w:"August 13, 1961",p:"date",d:"East Germany began building the Berlin Wall."},
+{w:"August 15, 1914",p:"date",d:"The Panama Canal opened to ships."},
+{w:"August 15, 1947",p:"date",d:"India became independent from British rule."},
+{w:"August 15, 1969",p:"date",d:"The Woodstock music festival began on a farm in upstate New York."},
+{w:"August 18, 1920",p:"date",d:"Tennessee's vote gave the 19th Amendment the final approval it needed, granting American women the right to vote."},
+{w:"August 21, 1911",p:"date",d:"The Mona Lisa was stolen from the Louvre museum in Paris."},
+{w:"August 21, 1959",p:"date",d:"Hawaii became the 50th state of the United States."},
+{w:"August 24, 2006",p:"date",d:"The International Astronomical Union voted to reclassify Pluto as a dwarf planet."},
+{w:"August 25, 1835",p:"date",d:"The New York Sun began publishing a series of false stories claiming there was life on the moon."},
+{w:"September 1, 1939",p:"date",d:"Germany invaded Poland, beginning World War II in Europe."},
+{w:"September 2, 1666",p:"date",d:"The Great Fire of London began in a bakery on Pudding Lane."},
+{w:"September 2, 1945",p:"date",d:"Japan formally surrendered aboard the USS Missouri in Tokyo Bay."},
+{w:"September 4, 1998",p:"date",d:"Larry Page and Sergey Brin incorporated Google."},
+{w:"September 7, 1927",p:"date",d:"Philo Farnsworth transmitted the first fully electronic television image."},
+{w:"September 8, 1504",p:"date",d:"Michelangelo's statue of David was unveiled in Florence."},
+{w:"September 12, 1940",p:"date",d:"Four teenagers found the Lascaux cave paintings in France after their dog reportedly led them to the hole."},
+{w:"September 17, 1787",p:"date",d:"Delegates signed the Constitution of the United States in Philadelphia."},
+{w:"September 18, 1851",p:"date",d:"The first issue of The New York Times was published."},
+{w:"September 21, 1897",p:"date",d:"A New York newspaper printed its famous reply to a young girl, saying yes, there is a Santa Claus."},
+{w:"September 23, 1846",p:"date",d:"Astronomers in Berlin first observed the planet Neptune where mathematics predicted it would be."},
+{w:"September 28, 1066",p:"date",d:"William of Normandy landed in England at Pevensey."},
+{w:"October 1, 1908",p:"date",d:"The first Ford Model T was offered for sale."},
+{w:"October 4, 1957",p:"date",d:"The Soviet Union launched Sputnik, the first artificial satellite."},
+{w:"October 5, 1962",p:"date",d:"The Beatles released their first single, Love Me Do."},
+{w:"October 6, 1927",p:"date",d:"The Jazz Singer opened, a film that brought spoken dialogue to movie audiences."},
+{w:"October 12, 1492",p:"date",d:"Christopher Columbus landed in the Bahamas."},
+{w:"October 14, 1066",p:"date",d:"William of Normandy defeated King Harold at the Battle of Hastings."},
+{w:"October 14, 1947",p:"date",d:"Chuck Yeager became the first pilot to fly faster than the speed of sound."},
+{w:"October 15, 1582",p:"date",d:"The first day of the Gregorian calendar in countries such as Italy and Spain, which skipped the ten days before it."},
+{w:"October 18, 1867",p:"date",d:"The United States formally took possession of Alaska from Russia."},
+{w:"October 24, 1945",p:"date",d:"The United Nations officially came into existence."},
+{w:"October 25, 1415",p:"date",d:"English forces under Henry V defeated a larger French army at Agincourt."},
+{w:"October 27, 1904",p:"date",d:"New York City's first subway line opened."},
+{w:"October 28, 1886",p:"date",d:"President Grover Cleveland dedicated the Statue of Liberty in New York Harbor."},
+{w:"October 29, 1969",p:"date",d:"The first message was sent between two computers on the ARPANET, the network that grew into the internet."},
+{w:"October 30, 1938",p:"date",d:"Orson Welles's radio drama of The War of the Worlds aired, and some listeners mistook it for real news."},
+{w:"October 31, 1517",p:"date",d:"Martin Luther is traditionally said to have posted his Ninety Five Theses on a church door in Wittenberg."},
+{w:"November 2, 1936",p:"date",d:"The BBC began the world's first regular high definition television service."},
+{w:"November 3, 1957",p:"date",d:"The Soviet Union launched Laika, the first animal to orbit the Earth."},
+{w:"November 5, 1605",p:"date",d:"Guy Fawkes was caught guarding barrels of gunpowder beneath the House of Lords."},
+{w:"November 7, 1917",p:"date",d:"Bolsheviks led by Lenin seized power in Russia, a date given by the modern calendar."},
+{w:"November 8, 1895",p:"date",d:"Wilhelm Rontgen discovered X-rays in his laboratory in Germany."},
+{w:"November 9, 1989",p:"date",d:"East Germany opened its borders and crowds began tearing down the Berlin Wall."},
+{w:"November 10, 1871",p:"date",d:"Journalist Henry Morton Stanley found the explorer David Livingstone in Africa."},
+{w:"November 11, 1918",p:"date",d:"An armistice took effect at 11 a.m. and ended the fighting of World War I."},
+{w:"November 17, 1869",p:"date",d:"The Suez Canal opened."},
+{w:"November 18, 1928",p:"date",d:"Steamboat Willie premiered, a cartoon featuring Mickey Mouse with synchronized sound."},
+{w:"November 19, 1863",p:"date",d:"Abraham Lincoln delivered the Gettysburg Address."},
+{w:"November 21, 1783",p:"date",d:"Two Frenchmen made the first untethered human flight in a hot air balloon over Paris."},
+{w:"November 24, 1859",p:"date",d:"Charles Darwin published On the Origin of Species."},
+{w:"November 26, 1922",p:"date",d:"Howard Carter first peered into the tomb of Tutankhamun and reported seeing wonderful things."},
+{w:"December 1, 1955",p:"date",d:"Rosa Parks was arrested in Montgomery, Alabama, for refusing to give up her bus seat."},
+{w:"December 2, 1942",p:"date",d:"Scientists in Chicago produced the first controlled nuclear chain reaction."},
+{w:"December 5, 1933",p:"date",d:"Prohibition ended in the United States with the repeal of the 18th Amendment."},
+{w:"December 10, 1901",p:"date",d:"The first Nobel Prizes were awarded in Stockholm."},
+{w:"December 12, 1901",p:"date",d:"Guglielmo Marconi reported receiving the first transatlantic radio signal in Newfoundland."},
+{w:"December 14, 1911",p:"date",d:"Roald Amundsen's team became the first to reach the South Pole."},
+{w:"December 16, 1773",p:"date",d:"Colonists dumped crates of British tea into Boston Harbor in protest of a tax."},
+{w:"December 17, 1903",p:"date",d:"Orville and Wilbur Wright made the first powered airplane flights near Kitty Hawk."},
+{w:"December 21, 1913",p:"date",d:"The first crossword puzzle was published in a New York newspaper."},
+{w:"December 25, 800",p:"date",d:"Pope Leo III crowned Charlemagne emperor in Rome."},
+{w:"December 25, 1066",p:"date",d:"William the Conqueror was crowned king of England at Westminster Abbey."},
+{w:"December 25, 1991",p:"date",d:"Mikhail Gorbachev resigned as leader of the Soviet Union."},
+{w:"December 26, 1776",p:"date",d:"George Washington's army won the Battle of Trenton after crossing the Delaware River."},
+{w:"December 27, 1831",p:"date",d:"HMS Beagle sailed from England with Charles Darwin aboard."},
+{w:"January 5, 1914",p:"date",d:"Henry Ford announced a pay rate of five dollars a day for his factory workers."},
+{w:"January 16, 1920",p:"date",d:"Prohibition began in the United States."},
+{w:"January 18, 1778",p:"date",d:"Captain James Cook became the first European to sight the Hawaiian Islands."},
+{w:"January 1, 1901",p:"date",d:"Six British colonies joined to form the Commonwealth of Australia."},
+{w:"February 22, 1732",p:"date",d:"George Washington was born in Virginia."}
 ];
+/* Topics are fixed blocks of the list. Always add new words at the end of a block's range, and update the numbers, so the seen-words memory stays correct. */
+const TOPICS=[{id:"w",name:"Weird Words",from:0,to:340},{id:"e",name:"Historical Events",from:340,to:490},{id:"d",name:"Dates",from:490,to:640}];
+const ALLT="wed";
+const topicOf=i=>TOPICS.find(t=>i>=t.from&&i<t.to)||TOPICS[0];
 
 const LETTERS="ABCDEFGHIJKLMNOP";
 const MAX_PLAYERS=15;
@@ -643,7 +949,7 @@ function renderHome(){
     '<p class="eyebrow">A bluffing game for 3 to 15 players</p>'+
     '<h1 class="hero">Invent a definition. Fool your friends.</h1>'+
     '<ol class="how">'+
-      '<li>The game shows a real, strange word.</li>'+
+      '<li>The game shows a real, strange word, event or date.</li>'+
       '<li>Everyone secretly writes a fake definition for it.</li>'+
       '<li>Everyone votes for the one they think is real.</li>'+
     '</ol>'+
@@ -806,11 +1112,12 @@ function cleanMap(m){
   if(m&&typeof m==="object"){Object.keys(m).slice(0,24).forEach(k=>{if(ID_RE.test(k))o[k]=+m[k]||0;});}
   return o;
 }
+function cleanTp(s){const o=String(s||ALLT).split("").filter((c,i,a)=>ALLT.indexOf(c)>=0&&a.indexOf(c)===i).join("");return o||ALLT;}
 function cleanG(g){
   if(!g||typeof g!=="object"||PHASES.indexOf(g.phase)<0||typeof g.host!=="string"||!ID_RE.test(g.host))return null;
   return {v:+g.v||0,host:g.host,phase:g.phase,round:+g.round||0,gen:+g.gen||1,tr:Math.min(+g.tr||8,12),
     deck:Array.isArray(g.deck)?g.deck.slice(0,12).map(n=>(+n|0)):[],sc:cleanMap(g.sc),d:cleanMap(g.d),
-    sk:Math.min(+g.sk||0,999),bs:cleanMap(g.bs),
+    sk:Math.min(+g.sk||0,999),bs:cleanMap(g.bs),tp:cleanTp(g.tp),
     mk:Array.isArray(g.mk)?g.mk.slice(0,16).filter(x=>typeof x==="string"&&ID_RE.test(x)):[]};
 }
 /* One entry per player id (the freshest tab wins) for a given room code. */
@@ -888,7 +1195,7 @@ async function createGame(){
     let c="";
     for(let i=0;i<8;i++){const t=genCode();if(room.look){room.look(t);await sleep(500);}if(!peek(t).n){c=t;break;}}
     if(!c) throw new Error("Could not find a free room code. Try again.");
-    mine={rc:c,id:myId,name:name,jt:Date.now(),g:{v:1,host:myId,phase:"lobby",round:0,gen:1,tr:8,deck:[],sc:{},d:{},sk:0,bs:{},mk:[]}};
+    mine={rc:c,id:myId,name:name,jt:Date.now(),g:{v:1,host:myId,phase:"lobby",round:0,gen:1,tr:8,tp:ALLT,deck:[],sc:{},d:{},sk:0,bs:{},mk:[]}};
     {const A=myAv();if(A)mine.p=A;}
     await enter(c);
   }catch(e){setErr(why(e));busyBtn(false);}
@@ -1050,15 +1357,19 @@ function lobbyView(){
   const g=S.game,ps=playerList(),host=isHost(),tr=g.tr||8;
   const rows=ps.map(p=>'<li>'+av(p.id)+'<span class="nm">'+esc(p.name||"Player")+(p.id===g.host?'<span class="tag">Host</span>':"")+(p.id===myId?'<em>you</em>':"")+'</span></li>').join("");
   const segs=[5,8,10].map(n=>'<button class="seg'+(tr===n?" on":"")+'" data-act="rounds" data-n="'+n+'" aria-pressed="'+(tr===n)+'"'+(host?"":" disabled")+'>'+n+'</button>').join("");
+  const tp=cleanTp(g.tp);
+  const tbtns=TOPICS.map(t=>'<button class="seg'+(tp.indexOf(t.id)>=0?" on":"")+'" data-act="topic" data-id="'+t.id+'" aria-pressed="'+(tp.indexOf(t.id)>=0)+'">'+t.name+'</button>').join("");
+  const tnames=TOPICS.filter(t=>tp.indexOf(t.id)>=0).map(t=>t.name).join(", ");
   const controls=host
-    ?'<div class="stack"><label>Rounds</label><div class="segs">'+segs+'</div><button class="btn primary block" data-act="start"'+(ps.length<2?" disabled":"")+'>Start the game</button><p class="count">'+(ps.length<2?"You need at least 2 players to start.":ps.length<3?"It plays best with 3 or more.":"Everyone in? Start whenever you are ready.")+'</p></div>'
-    :'<p class="lede">Waiting for '+esc(nameOf(g.host))+' to start the game. '+tr+' rounds.</p>';
+    ?'<div class="stack"><label>Topics</label><div class="segs wrap">'+tbtns+'</div><label>Rounds</label><div class="segs">'+segs+'</div><button class="btn primary block" data-act="start"'+(ps.length<2?" disabled":"")+'>Start the game</button><p class="count">'+(ps.length<2?"You need at least 2 players to start.":ps.length<3?"It plays best with 3 or more.":"Everyone in? Start whenever you are ready.")+'</p></div>'
+    :'<p class="lede">Waiting for '+esc(nameOf(g.host))+' to start the game. '+tr+' rounds.</p><p class="count">Topics: '+esc(tnames)+'</p>';
   return '<p class="eyebrow">Room code</p><p class="bigcode" id="bigcode">'+esc(code)+'</p>'+
     '<p class="lede">Friends open this page, choose “Join with a code,” and enter these four letters.</p>'+
     '<h2 class="h2">Players ('+ps.length+')</h2><ul class="plist">'+rows+'</ul>'+
     '<div class="mypic"><button class="btn" type="button" data-act="photo">'+(S.avatars&&S.avatars[myId]?"Change your photo":"Add your photo")+'</button>'+(S.avatars&&S.avatars[myId]?'<button class="link" type="button" data-act="nophoto">Remove</button>':"")+'</div>'+controls+
     '<p class="count">Keep this page open during the game. Closing it drops you out of the room.</p>';
 }
+const PLACEHOLDERS={w:"Make it sound like a real dictionary entry. Plain, specific, a little dull.",e:"Say what this event was. Make it sound like a history book. Plain, specific, a little dull.",d:"Say what happened on this date. Make it sound like a history book. Plain, specific, a little dull."};
 function writeView(){
   const g=S.game,W=wordOf(g),mineA=myAnswer();
   const dk=rkey(g.round);
@@ -1068,7 +1379,7 @@ function writeView(){
   if(!mineA||editing){
     return headword(W)+skipNote+
       '<div class="stack"><label for="def">Write a fake definition</label>'+
-      '<textarea id="def" maxlength="180" placeholder="Make it sound like a real dictionary entry. Plain, specific, a little dull."></textarea>'+
+      '<textarea id="def" maxlength="180" placeholder="'+esc(PLACEHOLDERS[topicOf(g.deck[g.round-1]).id])+'"></textarea>'+
       '<div class="row"><span class="count" id="cnt">0/180</span><button class="btn primary" id="submit" data-act="submit" disabled>Lock it in</button></div>'+
       '<p class="count">Type your answer. Pasting is turned off, and everyone will see a note if you leave this page while you write.</p></div>'+
       '<div id="prog" class="stack">'+progressBlock("write")+'</div>'+skipBtn;
@@ -1193,12 +1504,12 @@ function render(){
 
 /* ---------- Actions ---------- */
 function pickWords(n,exclude,seed){
-  const cnt=new Array(WORDS.length).fill(0),best=peersFor(code),skip=new Set(exclude);
+  const cnt=new Array(WORDS.length).fill(0),best=peersFor(code),skip=new Set(exclude),tp=cleanTp(S.game&&S.game.tp);
   Object.keys(best).forEach(id=>{const bits=decodeSeen(best[id].presence.sn);for(let i=0;i<WORDS.length;i++)if(bits[i])cnt[i]++;});
-  return shuffled(WORDS.map((_,i)=>i),seed).filter(i=>!skip.has(i)).sort((a,b)=>cnt[a]-cnt[b]).slice(0,n);
+  return shuffled(WORDS.map((_,i)=>i),seed).filter(i=>!skip.has(i)&&tp.indexOf(topicOf(i).id)>=0).sort((a,b)=>cnt[a]-cnt[b]).slice(0,n);
 }
 async function startGame(){
-  const g=S.game,n=Math.min(g.tr||8,WORDS.length);
+  const g=S.game,avail=WORDS.filter((_,i)=>cleanTp(g.tp).indexOf(topicOf(i).id)>=0).length,n=Math.min(g.tr||8,avail);
   const deck=pickWords(n,[],code+":"+Date.now());
   await hostSet({phase:"write",round:1,deck:deck,tr:n,sc:{},d:{},bs:{},mk:[],sk:0});
 }
@@ -1276,6 +1587,7 @@ app.addEventListener("click",async e=>{
       case "copy":return copyCode(b);
       case "photo":{const f=$("#avfile");if(f)f.click();return;}
       case "nophoto":return await setPhoto(null);
+      case "topic":{gameErr("");const g=S.game;if(!g||g.phase!=="lobby"||!isHost())return;const cur=cleanTp(g.tp),id=b.dataset.id;const nx=cur.indexOf(id)>=0?cur.replace(id,""):cur+id;if(!nx){gameErr("Keep at least one topic on.");return;}return await hostSet({tp:cleanTp(nx)});}
       case "rounds":gameErr("");return await hostSet({tr:+b.dataset.n});
       case "start":gameErr("");return await startGame();
       case "submit":gameErr("");return await submitAnswer();
