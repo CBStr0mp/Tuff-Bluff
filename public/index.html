@@ -1548,10 +1548,10 @@ function lobbyView(){
     ?'<div class="stack"><label>Topics</label><div class="segs wrap">'+tbtns+'</div><label>Rounds</label><div class="segs">'+segs+'</div><button class="btn primary block" data-act="start"'+(ps.length<2?" disabled":"")+'>Start the game</button><p class="count">'+(ps.length<2?"You need at least 2 players to start.":ps.length<3?"It plays best with 3 or more.":"Everyone in? Start whenever you are ready.")+'</p></div>'
     :'<p class="lede">Waiting for '+esc(nameOf(g.host))+' to start the game. '+tr+' rounds.</p><p class="count">Topics: '+esc(tnames)+'</p>';
   return '<p class="eyebrow">Room code</p><p class="bigcode" id="bigcode">'+esc(code)+'</p>'+
-    '<p class="lede">Share the 4-digit code with your friends.</p>'+
+    '<p class="lede">Share the 4-letter code with your friends.</p>'+
     '<h2 class="h2">Players ('+ps.length+')</h2><ul class="plist">'+rows+'</ul>'+
     '<div class="mypic"><button class="btn" type="button" data-act="photo">'+(S.avatars&&S.avatars[myId]?"Change your photo":"Add your photo")+'</button>'+(S.avatars&&S.avatars[myId]?'<button class="link" type="button" data-act="nophoto">Remove</button>':"")+'</div>'+controls+
-    '<p class="count">You can leave this page during the game but it won't be a secret...</p>';
+    '<p class="count">You can leave this page during the game but it won’t be a secret...</p>';
 }
 const PLACEHOLDERS={w:"Make it sound like a real dictionary entry. Plain, specific, a little dull.",e:"Say what this event was. Make it sound like a history book. Plain, specific, a little dull.",d:"Say what happened on this date. Make it sound like a history book. Plain, specific, a little dull.",p:"Say who this person was and what they did. Make it sound like a history book. Plain, specific, a little dull."};
 function writeView(){
@@ -1565,7 +1565,7 @@ function writeView(){
       '<div class="stack"><label for="def">Write a fake definition</label>'+
       '<textarea id="def" maxlength="180" placeholder="'+esc(PLACEHOLDERS[topicOf(g.deck[g.round-1]).id])+'"></textarea>'+
       '<div class="row"><span class="count" id="cnt">0/180</span><button class="btn primary" id="submit" data-act="submit" disabled>Lock it in</button></div>'+
-      '<p class="count">Type your answer. Pasting is turned off, and everyone will see a note if you leave this page while you write.</p></div>'+
+      '<p class="count">Type your answer. Pasting is not an option, also, everyone will know if you leave this page while you write.</p></div>'+
       '<div id="prog" class="stack">'+progressBlock("write")+'</div>'+skipBtn;
   }
   return headword(W)+skipNote+
@@ -1815,7 +1815,7 @@ app.addEventListener("input",e=>{
     ls("bn.nick",t.value.trim());updateAvPrev();
   }
 });
-const PASTE_NOTE="Pasting is turned off. Please type your answer.";
+const PASTE_NOTE="No cheating. Please type your answer.";
 function pasteNote(){
   gameErr(PASTE_NOTE);clearTimeout(pasteT);
   pasteT=setTimeout(()=>{const el=$("#gerr");if(el&&el.textContent===PASTE_NOTE)el.textContent="";},3500);
