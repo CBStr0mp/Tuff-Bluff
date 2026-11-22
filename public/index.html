@@ -43,7 +43,7 @@ button,input,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 12px}
-.mark{font-family:var(--f-display);font-size:1.9rem}
+.mark{font-family:var(--f-display);font-size:1.15rem}
 .code{font:500 .95rem var(--f-mono);letter-spacing:.2em;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:6px 6px 6px 12px;border-radius:3px;min-height:40px;cursor:pointer}
 .ticks{display:flex;gap:4px;margin:0 0 4px}
 .ticks i{flex:1;height:4px;background:var(--rule);border-radius:1px}
@@ -52,7 +52,7 @@ button,input,textarea{font:inherit;color:inherit}
 
 .screen{display:flex;flex-direction:column;gap:18px;padding-top:14px}
 .eyebrow{font:500 .75rem/1.4 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);margin:0}
-.hero{font-family:var(--f-display);font-weight:400;font-size:clamp(1.3rem,11.5vw,1.5rem);line-height:1.03;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.hero{font-family:var(--f-display);font-weight:400;font-size:clamp(2.3rem,11.5vw,3.5rem);line-height:1.03;margin:0;text-wrap:balance;letter-spacing:-.01em}
 .h2{font-family:var(--f-display);font-weight:400;font-size:1.35rem;margin:0}
 .lede{margin:0;color:var(--ink2)}
 .how{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column}
@@ -123,6 +123,13 @@ body.chat-on{padding-bottom:84px}
 #chatlist .txt{overflow-wrap:anywhere}
 #chatlist li.me .txt{font-weight:600}
 #chatlist .empty{color:var(--ink2);font-size:.9rem}
+#chatlist li.typing .bub{border:1px solid var(--rule);border-radius:14px;padding:6px 12px}
+#chatlist .dots{display:inline-flex;gap:5px;align-items:center;height:16px}
+#chatlist .dots i{width:7px;height:7px;border-radius:50%;background:var(--ink2);animation:tydot 1.2s infinite ease-in-out}
+#chatlist .dots i:nth-child(2){animation-delay:.18s}
+#chatlist .dots i:nth-child(3){animation-delay:.36s}
+@keyframes tydot{0%,60%,100%{opacity:.35;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){#chatlist .dots i{animation:none;opacity:.7}}
 #chatform{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 14px max(10px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--rule)}
 #chatform .btn{min-height:52px}
 .av{flex:none;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:hsl(var(--h) var(--avs) var(--avl));color:var(--avfg);font-weight:700;font-size:.85rem}
@@ -1135,7 +1142,7 @@ function renderHome(){
     '<ol class="how">'+
       '<li>The game shows a strange word, historical event, date, or person.</li>'+
       '<li>Everyone secretly writes a fake definition for it.</li>'+
-      '<li>Vote for the one you think is real.</li>'+
+      '<li>Everyone votes for the one they think is real.</li>'+
     '</ol>'+
     '<p class="score">Pick the real definition: 2 points. Every vote your fake gets: 1 point. Answer correctly: 3 points.</p>'+
     '<p class="notice" id="notice" hidden></p>'+
@@ -1206,6 +1213,21 @@ document.getElementById("avfile").addEventListener("change",async e=>{
 /* ---------- Chat ---------- */
 let peekKey="",peekT=null,chatOpen=false,chatSeen=new Set(),chatFirst=true,chatLastSend=0,chatHtml="";
 function chatKey(m){return m.uid+":"+m.s;}
+/* Typing bubble. A phone shares a counter (ty) while its owner types. Each phone judges for itself
+   whether the counter is fresh, so a phone that drops mid-word cannot leave a bubble stuck on screen. */
+const TY_SHOW=5000;let tyMap={},tyT=null,tyN=0,tyLast=0,tyOff=null;
+function typingIds(){
+  const now=Date.now();
+  return Object.keys(tyMap).filter(u=>u!==myId&&S&&S.players&&S.players[u]&&now-tyMap[u].at<TY_SHOW).sort((a,b)=>tyMap[a].at-tyMap[b].at);
+}
+function typingPing(on){
+  clearTimeout(tyOff);
+  if(!room)return;
+  if(!on){if(tyLast){tyLast=0;room.presence({ty:null}).catch(()=>{});}return;}
+  const now=Date.now();
+  if(now-tyLast>2500){tyLast=now;tyN=(tyN%9999)+1;room.presence({ty:tyN}).catch(()=>{});}
+  tyOff=setTimeout(()=>typingPing(false),3500);
+}
 function chatUpdate(){
   const box=$("#chat");if(!box)return;
   const on=!!(S&&code&&S.players&&S.players[myId]);
@@ -1230,7 +1252,12 @@ function chatUpdate(){
   }
   $("#chatpanel").hidden=!chatOpen;
   if(!chatOpen)return;
-  const html=msgs.length?msgs.map(m=>'<li class="'+(m.uid===myId?"me":"")+'">'+av(m.uid)+'<div class="bub"><span class="who">'+esc(m.uid===myId?"You":nameOf(m.uid))+'</span><span class="txt">'+esc(m.t)+'</span></div></li>').join(""):'<li class="empty">No messages yet. Say hello.</li>';
+  const ty=typingIds();
+  clearTimeout(tyT);
+  if(ty.length){const left=Math.min.apply(null,ty.map(u=>TY_SHOW-(Date.now()-tyMap[u].at)));tyT=setTimeout(chatUpdate,Math.max(100,left+50));}
+  const tyName=ty.length===1?nameOf(ty[0])+" is typing":ty.length===2?nameOf(ty[0])+" and "+nameOf(ty[1])+" are typing":ty.length+" people are typing";
+  const html=(msgs.length?msgs.map(m=>'<li class="'+(m.uid===myId?"me":"")+'">'+av(m.uid)+'<div class="bub"><span class="who">'+esc(m.uid===myId?"You":nameOf(m.uid))+'</span><span class="txt">'+esc(m.t)+'</span></div></li>').join(""):(ty.length?"":'<li class="empty">No messages yet. Say hello.</li>'))
+    +(ty.length?'<li class="typing">'+av(ty[0])+'<div class="bub"><span class="who">'+esc(tyName)+'</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div></li>':"");
   if(html===chatHtml)return;
   const L=$("#chatlist"),atEnd=L.scrollHeight-L.scrollTop-L.clientHeight<60;
   L.innerHTML=html;chatHtml=html;
@@ -1252,6 +1279,7 @@ function chatLayout(){
 window.__chatLayout=chatLayout;
 if(window.visualViewport){visualViewport.addEventListener("resize",chatLayout);visualViewport.addEventListener("scroll",chatLayout);}
 function openChat(on){
+  if(!on)typingPing(false);
   chatOpen=on;chatHtml="";const L=$("#chatlist");if(L)delete L.dataset.init;
   chatUpdate();
   if(on){chatLayout();const i=$("#chatin");if(i)setTimeout(()=>i.focus(),50);}
@@ -1274,9 +1302,14 @@ document.getElementById("chatform").addEventListener("submit",async e=>{
   const i=$("#chatin"),v=i.value;
   if(!v.trim())return;
   i.value="";
+  i.focus();            /* keeps the keyboard open */
+  typingPing(false);
   try{await sendChat(v);}catch(err){i.value=v;}
-  i.blur();
 });
+/* Tapping Send must not pull focus off the text box, or the keyboard would close. */
+document.querySelector("#chatform .btn").addEventListener("mousedown",e=>e.preventDefault());
+document.getElementById("chatin").addEventListener("input",e=>typingPing(!!e.target.value.trim()));
+document.getElementById("chatin").addEventListener("blur",()=>typingPing(false));
 
 function nick(){const el=$("#nick");const v=el?el.value.trim().slice(0,16):"";if(v)ls("bn.nick",v);return v;}
 function busyBtn(on){["#create","#join"].forEach(s=>{const b=$(s);if(b)b.disabled=on;});if(!on)updateHomeState();}
@@ -1332,6 +1365,8 @@ function derive(){
     }
     if(pr.w&&typeof pr.w.k==="string")aways.push({k:pr.w.k.slice(0,16),uid:id,s:Math.max(0,Math.min(+pr.w.s||0,3600))});
     if(typeof pr.p==="string"&&AV_RE.test(pr.p))avatars[id]=pr.p;
+    if(typeof pr.ty==="number"&&isFinite(pr.ty)){const o=tyMap[id];if(!o||o.n!==pr.ty)tyMap[id]={n:pr.ty,at:Date.now()};}
+    else delete tyMap[id];
     if(Array.isArray(pr.m))pr.m.slice(-8).forEach(x=>{if(x&&typeof x.t==="string"&&x.t.trim()&&isFinite(+x.s))chat.push({uid:id,s:+x.s,t:x.t.slice(0,160)});});
     const cg=cleanG(pr.g);
     if(cg&&(!game||cg.v>game.v))game=cg;
@@ -1446,7 +1481,7 @@ function leaveGame(){
   ls("bn.room",null);ls("bn.mine",null);ls("bn.lastg",null);
   code=null;S=null;mine={};
   clearHash();chatUpdate();
-  if(room)room.presence({rc:null,id:null,name:null,jt:null,a:null,v:null,g:null,sn:null,x:null,w:null,p:null,m:null}).catch(()=>{});
+  if(room)room.presence({rc:null,id:null,name:null,jt:null,a:null,v:null,g:null,sn:null,x:null,w:null,p:null,m:null,ty:null}).catch(()=>{});
   renderHome();
 }
 
@@ -1548,7 +1583,7 @@ function lobbyView(){
     ?'<div class="stack"><label>Topics</label><div class="segs wrap">'+tbtns+'</div><label>Rounds</label><div class="segs">'+segs+'</div><button class="btn primary block" data-act="start"'+(ps.length<2?" disabled":"")+'>Start the game</button><p class="count">'+(ps.length<2?"You need at least 2 players to start.":ps.length<3?"It plays best with 3 or more.":"Everyone in? Start whenever you are ready.")+'</p></div>'
     :'<p class="lede">Waiting for '+esc(nameOf(g.host))+' to start the game. '+tr+' rounds.</p><p class="count">Topics: '+esc(tnames)+'</p>';
   return '<p class="eyebrow">Room code</p><p class="bigcode" id="bigcode">'+esc(code)+'</p>'+
-    '<p class="lede">Share the 4-letter code with your friends.</p>'+
+    '<p class="lede">Share the 4-digit code with your friends.</p>'+
     '<h2 class="h2">Players ('+ps.length+')</h2><ul class="plist">'+rows+'</ul>'+
     '<div class="mypic"><button class="btn" type="button" data-act="photo">'+(S.avatars&&S.avatars[myId]?"Change your photo":"Add your photo")+'</button>'+(S.avatars&&S.avatars[myId]?'<button class="link" type="button" data-act="nophoto">Remove</button>':"")+'</div>'+controls+
     '<p class="count">You can leave this page during the game but it won’t be a secret...</p>';
@@ -1565,7 +1600,7 @@ function writeView(){
       '<div class="stack"><label for="def">Write a fake definition</label>'+
       '<textarea id="def" maxlength="180" placeholder="'+esc(PLACEHOLDERS[topicOf(g.deck[g.round-1]).id])+'"></textarea>'+
       '<div class="row"><span class="count" id="cnt">0/180</span><button class="btn primary" id="submit" data-act="submit" disabled>Lock it in</button></div>'+
-      '<p class="count">Type your answer. Pasting is not an option, also, everyone will know if you leave this page while you write.</p></div>'+
+      '<p class="count">Type your answer. Pasting is turned off, and everyone will see a note if you leave this page while you write.</p></div>'+
       '<div id="prog" class="stack">'+progressBlock("write")+'</div>'+skipBtn;
   }
   return headword(W)+skipNote+
@@ -1815,7 +1850,7 @@ app.addEventListener("input",e=>{
     ls("bn.nick",t.value.trim());updateAvPrev();
   }
 });
-const PASTE_NOTE="No cheating. Please type your answer.";
+const PASTE_NOTE="Pasting is turned off. Please type your answer.";
 function pasteNote(){
   gameErr(PASTE_NOTE);clearTimeout(pasteT);
   pasteT=setTimeout(()=>{const el=$("#gerr");if(el&&el.textContent===PASTE_NOTE)el.textContent="";},3500);
